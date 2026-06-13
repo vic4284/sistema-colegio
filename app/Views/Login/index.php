@@ -225,7 +225,7 @@
             </div>
 
             <div class="grupo">
-                <label for="password">Contraseña</label>
+                <label for="password">ContraseñaSS</label>
                 <input type="password"
                        name="password"
                        id="password"
