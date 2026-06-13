@@ -21,7 +21,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>ID</th> 
                     <th>Imagen</th>
                     <th>Nombre de usuario</th>
                     <th>Correo electrónico</th>
