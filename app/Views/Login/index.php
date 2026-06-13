@@ -233,7 +233,7 @@
                        required>
             </div>
 
-            <button type="submit" class="btn-login">Ingresaaaar</button>
+            <button type="submit" class="btn-login">Ingresar</button>
 
             <div class="acciones-login">
                 <a href="<?= base_url('/activar-cuenta') ?>" class="btn-secundario">Activar cuenta</a>
