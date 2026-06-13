@@ -29,7 +29,7 @@
                     <th>Estado</th>
                     <th>Último inicio de sesión</th>
                     <th>Fecha de creación</th>
-                    <th>Acciones</th>
+                    <th>Acciones</th> 
                 </tr>
             </thead>
             <tbody>
