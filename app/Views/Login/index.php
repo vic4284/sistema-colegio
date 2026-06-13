@@ -216,7 +216,7 @@
             <?= csrf_field() ?>
 
             <div class="grupo">
-                <label for="login">Usuario o CorreoSSSS</label>
+                <label for="login">Usuario o Correo</label>
                 <input type="text"
                        name="login"
                        id="login"
