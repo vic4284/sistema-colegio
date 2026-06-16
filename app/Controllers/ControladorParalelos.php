@@ -7,27 +7,39 @@ use CodeIgniter\HTTP\ResponseInterface;
 use App\Models\ParaleloModelo;
 class ControladorParalelos extends BaseController
 {
-       private function esAdministrativo()
+  private function esAdministrativo()
     {
         return session()->get('logueado') && session()->get('rol') === 'ADMINISTRATIVO';
     }
 
+    private function separarParalelo($valor)
+    {
+        $partes = explode('|', $valor);
+
+        if (count($partes) !== 2) {
+            return [null, null];
+        }
+
+        return [$partes[0], $partes[1]];
+    }
+
     private function validarDatosParalelo($idGrado, $idSeccion)
     {
-        if ($idGrado === '' || !is_numeric($idGrado)) {
+        if ($idGrado === '' || $idGrado === null || !is_numeric($idGrado)) {
             return 'Debe seleccionar un nivel y grado válido.';
         }
 
-        if ($idSeccion === '' || !is_numeric($idSeccion)) {
+        if ($idSeccion === '' || $idSeccion === null || !is_numeric($idSeccion)) {
             return 'Debe seleccionar una sección válida.';
         }
 
         return null;
     }
 
-    private function cargarCombos()
+    private function cargarDatosFormulario($idParaleloExcluir = null)
     {
         $db = \Config\Database::connect();
+        $modelo = new ParaleloModelo();
 
         $grados = $db->table('grados g')
             ->select('g.id_grado, g.nombre_grado, n.nombre_nivel')
@@ -45,10 +57,27 @@ class ControladorParalelos extends BaseController
             ->get()
             ->getResultArray();
 
-        return [
-            'grados'    => $grados,
-            'secciones' => $secciones
-        ];
+        $usadas = $modelo->obtenerCombinacionesUsadas($idParaleloExcluir);
+
+        $combinaciones = [];
+
+        foreach ($grados as $grado) {
+            foreach ($secciones as $seccion) {
+                $clave = $grado['id_grado'] . '-' . $seccion['id_seccion'];
+
+                if (!in_array($clave, $usadas)) {
+                    $combinaciones[] = [
+                        'id_grado'       => $grado['id_grado'],
+                        'id_seccion'     => $seccion['id_seccion'],
+                        'nombre_nivel'   => $grado['nombre_nivel'],
+                        'nombre_grado'   => $grado['nombre_grado'],
+                        'nombre_seccion' => $seccion['nombre_seccion']
+                    ];
+                }
+            }
+        }
+
+        return $combinaciones;
     }
 
     public function index()
@@ -76,12 +105,18 @@ class ControladorParalelos extends BaseController
             $paralelos = $modelo->listarParalelos();
         }
 
-        $combos = $this->cargarCombos();
+        $combinacionesDisponibles = $this->cargarDatosFormulario();
+
+        $combinacionesEditar = [];
+
+        foreach ($paralelos as $paralelo) {
+            $combinacionesEditar[$paralelo['id_paralelo']] = $this->cargarDatosFormulario($paralelo['id_paralelo']);
+        }
 
         return view('paralelos/index', [
-            'paralelos' => $paralelos,
-            'grados'    => $combos['grados'],
-            'secciones' => $combos['secciones']
+            'paralelos'                 => $paralelos,
+            'combinacionesDisponibles'  => $combinacionesDisponibles,
+            'combinacionesEditar'       => $combinacionesEditar
         ]);
     }
 
@@ -94,8 +129,9 @@ class ControladorParalelos extends BaseController
 
         $modelo = new ParaleloModelo();
 
-        $idGrado   = trim($this->request->getPost('id_grado') ?? '');
-        $idSeccion = trim($this->request->getPost('id_seccion') ?? '');
+        [$idGrado, $idSeccion] = $this->separarParalelo(
+            trim($this->request->getPost('paralelo_disponible') ?? '')
+        );
 
         $error = $this->validarDatosParalelo($idGrado, $idSeccion);
 
@@ -142,8 +178,9 @@ class ControladorParalelos extends BaseController
                 ->with('error', 'Paralelo no encontrado.');
         }
 
-        $idGrado   = trim($this->request->getPost('id_grado') ?? '');
-        $idSeccion = trim($this->request->getPost('id_seccion') ?? '');
+        [$idGrado, $idSeccion] = $this->separarParalelo(
+            trim($this->request->getPost('paralelo_disponible') ?? '')
+        );
 
         $error = $this->validarDatosParalelo($idGrado, $idSeccion);
 
@@ -193,16 +230,12 @@ class ControladorParalelos extends BaseController
 
         $modelo = new ParaleloModelo();
 
-        $paralelo = $modelo->find($id);
-
-        if (!$paralelo) {
+        if (!$modelo->find($id)) {
             return redirect()->to(base_url('/paralelos'))
                 ->with('error', 'Paralelo no encontrado.');
         }
 
-        $modelo->update($id, [
-            'estado' => $estado
-        ]);
+        $modelo->update($id, ['estado' => $estado]);
 
         return redirect()->to(base_url('/paralelos'))
             ->with('success', 'Paralelo ' . $texto . ' correctamente.');

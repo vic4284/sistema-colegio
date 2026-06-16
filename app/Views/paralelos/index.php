@@ -55,9 +55,7 @@
                             <td><?= esc($paralelo['fecha_creacion']) ?></td>
 
                             <td>
-                                <a class="btn btn-editar" href="#modal-editar-<?= $paralelo['id_paralelo'] ?>">
-                                    Editar
-                                </a>
+                                <a class="btn btn-editar" href="#modal-editar-<?= $paralelo['id_paralelo'] ?>">Editar</a>
 
                                 <?php if ((int)$paralelo['estado'] === 1): ?>
                                     <a class="btn btn-desactivar"
@@ -95,30 +93,30 @@
             <?= csrf_field() ?>
 
             <div class="grupo">
-                <label for="id_grado">Nivel y grado</label>
-                <select name="id_grado" id="id_grado" required>
-                    <option value="">Seleccione nivel y grado</option>
-                    <?php foreach ($grados as $grado): ?>
-                        <option value="<?= esc($grado['id_grado']) ?>" <?= old('id_grado') == $grado['id_grado'] ? 'selected' : '' ?>>
-                            <?= esc($grado['nombre_nivel'] . ' - ' . $grado['nombre_grado']) ?>
+                <label for="paralelo_disponible">Paralelo disponible</label>
+
+                <select name="paralelo_disponible" id="paralelo_disponible" required>
+                    <option value="">Seleccione un paralelo disponible</option>
+
+                    <?php foreach ($combinacionesDisponibles as $combo): ?>
+                        <option value="<?= esc($combo['id_grado'] . '|' . $combo['id_seccion']) ?>"
+                            <?= old('paralelo_disponible') == ($combo['id_grado'] . '|' . $combo['id_seccion']) ? 'selected' : '' ?>>
+                            <?= esc($combo['nombre_nivel'] . ' - ' . $combo['nombre_grado'] . ' - ' . $combo['nombre_seccion']) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
+
+                <?php if (empty($combinacionesDisponibles)): ?>
+                    <div class="mensaje-error" style="margin-top: 10px;">
+                        No existen paralelos disponibles para registrar.
+                    </div>
+                <?php endif; ?>
             </div>
 
-            <div class="grupo">
-                <label for="id_seccion">Sección</label>
-                <select name="id_seccion" id="id_seccion" required>
-                    <option value="">Seleccione sección</option>
-                    <?php foreach ($secciones as $seccion): ?>
-                        <option value="<?= esc($seccion['id_seccion']) ?>" <?= old('id_seccion') == $seccion['id_seccion'] ? 'selected' : '' ?>>
-                            <?= esc($seccion['nombre_seccion']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
+            <button type="submit" class="btn btn-guardar" <?= empty($combinacionesDisponibles) ? 'disabled' : '' ?>>
+                Guardar
+            </button>
 
-            <button type="submit" class="btn btn-guardar">Guardar</button>
             <a href="#" class="btn btn-cancelar">Cancelar</a>
         </form>
     </div>
@@ -136,28 +134,19 @@
                     <?= csrf_field() ?>
 
                     <div class="grupo">
-                        <label for="id_grado_<?= $paralelo['id_paralelo'] ?>">Nivel y grado</label>
-                        <select name="id_grado" id="id_grado_<?= $paralelo['id_paralelo'] ?>" required>
-                            <option value="">Seleccione nivel y grado</option>
-                            <?php foreach ($grados as $grado): ?>
-                                <option value="<?= esc($grado['id_grado']) ?>"
-                                    <?= ((int)$paralelo['id_grado'] === (int)$grado['id_grado']) ? 'selected' : '' ?>>
-                                    <?= esc($grado['nombre_nivel'] . ' - ' . $grado['nombre_grado']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
+                        <label for="paralelo_disponible_<?= $paralelo['id_paralelo'] ?>">Paralelo disponible</label>
 
-                    <div class="grupo">
-                        <label for="id_seccion_<?= $paralelo['id_paralelo'] ?>">Sección</label>
-                        <select name="id_seccion" id="id_seccion_<?= $paralelo['id_paralelo'] ?>" required>
-                            <option value="">Seleccione sección</option>
-                            <?php foreach ($secciones as $seccion): ?>
-                                <option value="<?= esc($seccion['id_seccion']) ?>"
-                                    <?= ((int)$paralelo['id_seccion'] === (int)$seccion['id_seccion']) ? 'selected' : '' ?>>
-                                    <?= esc($seccion['nombre_seccion']) ?>
+                        <select name="paralelo_disponible"
+                                id="paralelo_disponible_<?= $paralelo['id_paralelo'] ?>"
+                                required>
+
+                            <?php foreach ($combinacionesEditar[$paralelo['id_paralelo']] as $combo): ?>
+                                <option value="<?= esc($combo['id_grado'] . '|' . $combo['id_seccion']) ?>"
+                                    <?= ((int)$paralelo['id_grado'] === (int)$combo['id_grado'] && (int)$paralelo['id_seccion'] === (int)$combo['id_seccion']) ? 'selected' : '' ?>>
+                                    <?= esc($combo['nombre_nivel'] . ' - ' . $combo['nombre_grado'] . ' - ' . $combo['nombre_seccion']) ?>
                                 </option>
                             <?php endforeach; ?>
+
                         </select>
                     </div>
 
