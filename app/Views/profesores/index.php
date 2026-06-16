@@ -16,7 +16,7 @@
     <?php endif; ?>
 
     <div style="margin-bottom: 20px;">
-        <a class="btn btn-guardar" href="#modal-insertar-profesor">Nuevo Profesor</a>
+        <a class="btn btn-guardar" href="#modal-insertar-profesor">Nuevo ProfesorEE</a>
     </div>
 
     <div class="tabla-responsive">
