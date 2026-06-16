@@ -57,4 +57,30 @@ class HorarioModelo extends Model
                        ->get()
                        ->getResultArray();
     }
+
+    public function existeHorario($dia, $horaInicio, $horaFin, $idHorario = null)
+    {
+        $builder = $this->where('dia', $dia)
+                        ->where('hora_inicio', $horaInicio)
+                        ->where('hora_fin', $horaFin);
+
+        if ($idHorario !== null) {
+            $builder->where('id_horario !=', $idHorario);
+        }
+
+        return $builder->first();
+    }
+
+    public function existeCruceHorario($dia, $horaInicio, $horaFin, $idHorario = null)
+    {
+        $builder = $this->where('dia', $dia)
+                        ->where('hora_inicio <', $horaFin)
+                        ->where('hora_fin >', $horaInicio);
+
+        if ($idHorario !== null) {
+            $builder->where('id_horario !=', $idHorario);
+        }
+
+        return $builder->first();
+    }
 }

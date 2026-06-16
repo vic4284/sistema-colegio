@@ -96,23 +96,31 @@
                 <label for="dia">Día</label>
                 <select name="dia" id="dia" required>
                     <option value="">Seleccione día</option>
-                    <option value="Lunes">Lunes</option>
-                    <option value="Martes">Martes</option>
-                    <option value="Miércoles">Miércoles</option>
-                    <option value="Jueves">Jueves</option>
-                    <option value="Viernes">Viernes</option>
-                    <option value="Sábado">Sábado</option>
+                    <option value="Lunes" <?= old('dia') === 'Lunes' ? 'selected' : '' ?>>Lunes</option>
+                    <option value="Martes" <?= old('dia') === 'Martes' ? 'selected' : '' ?>>Martes</option>
+                    <option value="Miércoles" <?= old('dia') === 'Miércoles' ? 'selected' : '' ?>>Miércoles</option>
+                    <option value="Jueves" <?= old('dia') === 'Jueves' ? 'selected' : '' ?>>Jueves</option>
+                    <option value="Viernes" <?= old('dia') === 'Viernes' ? 'selected' : '' ?>>Viernes</option>
+                    <option value="Sábado" <?= old('dia') === 'Sábado' ? 'selected' : '' ?>>Sábado</option>
                 </select>
             </div>
 
             <div class="grupo">
                 <label for="hora_inicio">Hora inicio</label>
-                <input type="time" name="hora_inicio" id="hora_inicio" required>
+                <input type="time"
+                       name="hora_inicio"
+                       id="hora_inicio"
+                       required
+                       value="<?= esc(old('hora_inicio')) ?>">
             </div>
 
             <div class="grupo">
                 <label for="hora_fin">Hora fin</label>
-                <input type="time" name="hora_fin" id="hora_fin" required>
+                <input type="time"
+                       name="hora_fin"
+                       id="hora_fin"
+                       required
+                       value="<?= esc(old('hora_fin')) ?>">
             </div>
 
             <button type="submit" class="btn btn-guardar">Guardar</button>
@@ -135,6 +143,7 @@
                     <div class="grupo">
                         <label for="dia_<?= $horario['id_horario'] ?>">Día</label>
                         <select name="dia" id="dia_<?= $horario['id_horario'] ?>" required>
+                            <option value="">Seleccione día</option>
                             <option value="Lunes" <?= ($horario['dia'] === 'Lunes') ? 'selected' : '' ?>>Lunes</option>
                             <option value="Martes" <?= ($horario['dia'] === 'Martes') ? 'selected' : '' ?>>Martes</option>
                             <option value="Miércoles" <?= ($horario['dia'] === 'Miércoles') ? 'selected' : '' ?>>Miércoles</option>
@@ -149,7 +158,7 @@
                         <input type="time"
                                name="hora_inicio"
                                id="hora_inicio_<?= $horario['id_horario'] ?>"
-                               value="<?= esc($horario['hora_inicio']) ?>"
+                               value="<?= esc(substr($horario['hora_inicio'], 0, 5)) ?>"
                                required>
                     </div>
 
@@ -158,7 +167,7 @@
                         <input type="time"
                                name="hora_fin"
                                id="hora_fin_<?= $horario['id_horario'] ?>"
-                               value="<?= esc($horario['hora_fin']) ?>"
+                               value="<?= esc(substr($horario['hora_fin'], 0, 5)) ?>"
                                required>
                     </div>
 
