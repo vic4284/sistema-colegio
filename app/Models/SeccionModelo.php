@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class SeccionModelo extends Model
 {
-    protected $table = 'secciones';
+     protected $table = 'secciones';
     protected $primaryKey = 'id_seccion';
     protected $returnType = 'array';
 
@@ -52,5 +52,16 @@ class SeccionModelo extends Model
         return $builder->orderBy('id_seccion', 'ASC')
                        ->get()
                        ->getResultArray();
+    }
+
+    public function existeSeccion($nombreSeccion, $idSeccion = null)
+    {
+        $builder = $this->where('nombre_seccion', $nombreSeccion);
+
+        if ($idSeccion !== null) {
+            $builder->where('id_seccion !=', $idSeccion);
+        }
+
+        return $builder->first();
     }
 }

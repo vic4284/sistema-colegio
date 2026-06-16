@@ -90,7 +90,16 @@
 
             <div class="grupo">
                 <label for="nombre_seccion">Nombre de sección</label>
-                <input type="text" name="nombre_seccion" id="nombre_seccion" placeholder="Ej: A, B, C, D" required>
+                <input type="text"
+                       name="nombre_seccion"
+                       id="nombre_seccion"
+                       placeholder="Ej: A, B, C, D"
+                       required
+                       minlength="1"
+                       maxlength="1"
+                       pattern="[A-Za-z]"
+                       title="Solo se permite una letra. Ejemplo: A, B, C o D"
+                       value="<?= esc(old('nombre_seccion')) ?>">
             </div>
 
             <button type="submit" class="btn btn-guardar">Guardar</button>
@@ -117,7 +126,11 @@
                                id="nombre_seccion_<?= $seccion['id_seccion'] ?>"
                                value="<?= esc($seccion['nombre_seccion']) ?>"
                                placeholder="Ej: A, B, C, D"
-                               required>
+                               required
+                               minlength="1"
+                               maxlength="1"
+                               pattern="[A-Za-z]"
+                               title="Solo se permite una letra. Ejemplo: A, B, C o D">
                     </div>
 
                     <div class="grupo">
