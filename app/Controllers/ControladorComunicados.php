@@ -3,75 +3,120 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
-use CodeIgniter\HTTP\ResponseInterface;
 use App\Models\ComunicadosModelo;
+
 class ControladorComunicados extends BaseController
 {
+    private function puedeGestionarComunicados()
+    {
+        return session()->get('logueado') &&
+            in_array(session()->get('rol'), ['ADMINISTRATIVO', 'PROFESOR', 'PSICOLOGIA']);
+    }
+
+    private function validarDatosComunicado($titulo, $mensaje, $rolesDestino, $imagen = null)
+    {
+        if ($titulo === '') {
+            return 'El título es obligatorio.';
+        }
+
+        if (mb_strlen($titulo) < 3) {
+            return 'El título debe tener al menos 3 caracteres.';
+        }
+
+        if (mb_strlen($titulo) > 100) {
+            return 'El título no debe superar los 100 caracteres.';
+        }
+
+        if ($mensaje === '') {
+            return 'El mensaje es obligatorio.';
+        }
+
+        if (mb_strlen($mensaje) < 5) {
+            return 'El mensaje debe tener al menos 5 caracteres.';
+        }
+
+        if (mb_strlen($mensaje) > 500) {
+            return 'El mensaje no debe superar los 500 caracteres.';
+        }
+
+        if (empty($rolesDestino)) {
+            return 'Debe seleccionar al menos un rol destino.';
+        }
+
+        if ($imagen && $imagen->isValid() && !$imagen->hasMoved()) {
+            $extension = strtolower($imagen->getExtension());
+            $permitidas = ['jpg', 'jpeg', 'png', 'webp'];
+
+            if (!in_array($extension, $permitidas)) {
+                return 'Solo se permiten imágenes JPG, JPEG, PNG o WEBP.';
+            }
+
+            if ($imagen->getSize() > 2 * 1024 * 1024) {
+                return 'La imagen no debe superar los 2 MB.';
+            }
+        }
+
+        return null;
+    }
+
     public function index()
     {
         if (!session()->get('logueado')) {
             return redirect()->to(base_url('/login'));
         }
 
-        if (session()->get('rol') !== 'ADMINISTRATIVO' && session()->get('rol') !== 'PROFESOR' && session()->get('rol') !== 'PSICOLOGIA') {
+        if (!$this->puedeGestionarComunicados()) {
             return redirect()->to(base_url('/dashboard'))
-                             ->with('error', 'No tiene permisos para acceder a este módulo.');
+                ->with('error', 'No tiene permisos para acceder a este módulo.');
         }
 
         $modelo = new ComunicadosModelo();
 
- $buscar = trim($this->request->getGet('buscar'));
+        $buscar = trim($this->request->getGet('buscar') ?? '');
 
-if ($buscar !== '') {
-    $comunicados = $modelo->buscarComunicados(session()->get('id_usuario'), $buscar);
-} else {
-    $comunicados = $modelo->listarComunicados(session()->get('id_usuario'));
-}
+        if (mb_strlen($buscar) > 80) {
+            $buscar = mb_substr($buscar, 0, 80);
+        }
+
+        if ($buscar !== '') {
+            $comunicados = $modelo->buscarComunicados(session()->get('id_usuario'), $buscar);
+        } else {
+            $comunicados = $modelo->listarComunicados(session()->get('id_usuario'));
+        }
 
         foreach ($comunicados as &$comunicado) {
             $comunicado['roles_destino'] = $modelo->obtenerDestinosPorComunicado($comunicado['id_comunicado']);
         }
 
-        $data = [
+        return view('Comunicados/index', [
             'comunicados' => $comunicados,
             'roles'       => $modelo->obtenerRoles()
-        ];
-
-        return view('Comunicados/index', $data);
+        ]);
     }
 
     public function guardar()
     {
-        if (!session()->get('logueado') || session()->get('rol') !== 'ADMINISTRATIVO' && session()->get('rol') !== 'PROFESOR' && session()->get('rol') !== 'PSICOLOGIA') {
+        if (!$this->puedeGestionarComunicados()) {
             return redirect()->to(base_url('/dashboard'))
-                             ->with('error', 'No tiene permisos para realizar esta acción.');
+                ->with('error', 'No tiene permisos para realizar esta acción.');
         }
 
-        $titulo       = trim($this->request->getPost('titulo'));
-        $mensaje      = trim($this->request->getPost('mensaje'));
+        $titulo       = trim($this->request->getPost('titulo') ?? '');
+        $mensaje      = trim($this->request->getPost('mensaje') ?? '');
         $rolesDestino = $this->request->getPost('roles_destino');
         $imagen       = $this->request->getFile('imagen');
 
-        if ($titulo === '' || $mensaje === '') {
-            return redirect()->to(base_url('/comunicados'))
-                             ->with('error', 'Debe completar título y mensaje.');
-        }
+        $error = $this->validarDatosComunicado($titulo, $mensaje, $rolesDestino, $imagen);
 
-        if (empty($rolesDestino)) {
+        if ($error !== null) {
             return redirect()->to(base_url('/comunicados'))
-                             ->with('error', 'Debe seleccionar al menos un rol destino.');
+                ->with('error', $error)
+                ->withInput();
         }
 
         $nombreImagen = null;
 
         if ($imagen && $imagen->isValid() && !$imagen->hasMoved()) {
-            $extension = strtolower($imagen->getExtension());
-
-            if (!in_array($extension, ['jpg', 'jpeg', 'png'])) {
-                return redirect()->to(base_url('/comunicados'))
-                                 ->with('error', 'Solo se permiten imágenes JPG, JPEG o PNG.');
-            }
-
             $nombreImagen = $imagen->getRandomName();
             $imagen->move(ROOTPATH . 'public/assets/img/comunicados', $nombreImagen);
         }
@@ -79,59 +124,57 @@ if ($buscar !== '') {
         $modelo = new ComunicadosModelo();
 
         $modelo->insert([
-            'id_usuario'         => session()->get('id_usuario'),
-            'titulo'             => $titulo,
-            'mensaje'            => $mensaje,
-            'imagen'             => $nombreImagen,
-            'fecha_actualizacion'=> null,
-            'estado'             => 1
+            'id_usuario'          => session()->get('id_usuario'),
+            'titulo'              => $titulo,
+            'mensaje'             => $mensaje,
+            'imagen'              => $nombreImagen,
+            'fecha_actualizacion' => null,
+            'estado'              => 1
         ]);
 
         $idComunicado = $modelo->insertID();
         $modelo->guardarDestinos($idComunicado, $rolesDestino);
 
         return redirect()->to(base_url('/comunicados'))
-                         ->with('success', 'Comunicado registrado correctamente.');
+            ->with('success', 'Comunicado registrado correctamente.');
     }
 
     public function actualizar($idComunicado = null)
     {
-        if (!session()->get('logueado') || session()->get('rol') !== 'ADMINISTRATIVO' && session()->get('rol') !== 'PROFESOR' && session()->get('rol') !== 'PSICOLOGIA') {
+        if (!$this->puedeGestionarComunicados()) {
             return redirect()->to(base_url('/dashboard'))
-                             ->with('error', 'No tiene permisos para realizar esta acción.');
+                ->with('error', 'No tiene permisos para realizar esta acción.');
         }
 
-        if ($idComunicado === null) {
+        if ($idComunicado === null || !is_numeric($idComunicado)) {
             return redirect()->to(base_url('/comunicados'))
-                             ->with('error', 'ID de comunicado no válido.');
+                ->with('error', 'ID de comunicado no válido.');
         }
 
         $modelo = new ComunicadosModelo();
         $comunicado = $modelo->obtenerComunicadoPorId($idComunicado);
 
-        if ((int)$comunicado['id_usuario'] !== (int)session()->get('id_usuario')) {
-    return redirect()->to(base_url('/comunicados'))
-                     ->with('error', 'No tiene permisos para modificar este comunicado.');
-}
-
         if (!$comunicado) {
             return redirect()->to(base_url('/comunicados'))
-                             ->with('error', 'Comunicado no encontrado.');
+                ->with('error', 'Comunicado no encontrado.');
         }
 
-        $titulo       = trim($this->request->getPost('titulo'));
-        $mensaje      = trim($this->request->getPost('mensaje'));
+        if ((int)$comunicado['id_usuario'] !== (int)session()->get('id_usuario')) {
+            return redirect()->to(base_url('/comunicados'))
+                ->with('error', 'No tiene permisos para modificar este comunicado.');
+        }
+
+        $titulo       = trim($this->request->getPost('titulo') ?? '');
+        $mensaje      = trim($this->request->getPost('mensaje') ?? '');
         $rolesDestino = $this->request->getPost('roles_destino');
         $imagen       = $this->request->getFile('imagen');
 
-        if ($titulo === '' || $mensaje === '') {
-            return redirect()->to(base_url('/comunicados'))
-                             ->with('error', 'Debe completar título y mensaje.');
-        }
+        $error = $this->validarDatosComunicado($titulo, $mensaje, $rolesDestino, $imagen);
 
-        if (empty($rolesDestino)) {
+        if ($error !== null) {
             return redirect()->to(base_url('/comunicados'))
-                             ->with('error', 'Debe seleccionar al menos un rol destino.');
+                ->with('error', $error)
+                ->withInput();
         }
 
         $datosActualizar = [
@@ -141,18 +184,15 @@ if ($buscar !== '') {
         ];
 
         if ($imagen && $imagen->isValid() && !$imagen->hasMoved()) {
-            $extension = strtolower($imagen->getExtension());
-
-            if (!in_array($extension, ['jpg', 'jpeg', 'png'])) {
-                return redirect()->to(base_url('/comunicados'))
-                                 ->with('error', 'Solo se permiten imágenes JPG, JPEG o PNG.');
-            }
-
             $nuevoNombre = $imagen->getRandomName();
             $imagen->move(ROOTPATH . 'public/assets/img/comunicados', $nuevoNombre);
 
-            if (!empty($comunicado['imagen']) && file_exists(ROOTPATH . 'public/assets/img/comunicados/' . $comunicado['imagen'])) {
-                unlink(ROOTPATH . 'public/assets/img/comunicados/' . $comunicado['imagen']);
+            if (!empty($comunicado['imagen'])) {
+                $rutaAnterior = ROOTPATH . 'public/assets/img/comunicados/' . $comunicado['imagen'];
+
+                if (file_exists($rutaAnterior)) {
+                    unlink($rutaAnterior);
+                }
             }
 
             $datosActualizar['imagen'] = $nuevoNombre;
@@ -162,68 +202,48 @@ if ($buscar !== '') {
         $modelo->guardarDestinos($idComunicado, $rolesDestino);
 
         return redirect()->to(base_url('/comunicados'))
-                         ->with('success', 'Comunicado actualizado correctamente.');
+            ->with('success', 'Comunicado actualizado correctamente.');
     }
 
     public function activar($idComunicado = null)
     {
-        if (!session()->get('logueado') || (session()->get('rol') !== 'ADMINISTRATIVO' && session()->get('rol') !== 'PROFESOR' && session()->get('rol') !== 'PSICOLOGIA')) {
-            return redirect()->to(base_url('/dashboard'))
-                             ->with('error', 'No tiene permisos para realizar esta acción.');
-        }
-
-        if ($idComunicado === null) {
-            return redirect()->to(base_url('/comunicados'))
-                             ->with('error', 'ID de comunicado no válido.');
-        }
-
-        $modelo = new ComunicadosModelo();
-        $comunicado = $modelo->obtenerComunicadoPorId($idComunicado);
-
-
-        if ((int)$comunicado['id_usuario'] !== (int)session()->get('id_usuario')) {
-    return redirect()->to(base_url('/comunicados'))
-                     ->with('error', 'No tiene permisos para activar este comunicado.');
-}
-        if (!$comunicado) {
-            return redirect()->to(base_url('/comunicados'))
-                             ->with('error', 'Comunicado no encontrado.');
-        }
-
-        $modelo->cambiarEstado($idComunicado, 1);
-
-        return redirect()->to(base_url('/comunicados'))
-                         ->with('success', 'Comunicado activado correctamente.');
+        return $this->cambiarEstadoComunicado($idComunicado, 1, 'activado');
     }
 
     public function desactivar($idComunicado = null)
     {
-        if (!session()->get('logueado') || (session()->get('rol') !== 'ADMINISTRATIVO' && session()->get('rol') !== 'PROFESOR' && session()->get('rol') !== 'PSICOLOGIA')) {
+        return $this->cambiarEstadoComunicado($idComunicado, 0, 'desactivado');
+    }
+
+    private function cambiarEstadoComunicado($idComunicado, $estado, $texto)
+    {
+        if (!$this->puedeGestionarComunicados()) {
             return redirect()->to(base_url('/dashboard'))
-                             ->with('error', 'No tiene permisos para realizar esta acción.');
+                ->with('error', 'No tiene permisos para realizar esta acción.');
         }
 
-        if ($idComunicado === null) {
+        if ($idComunicado === null || !is_numeric($idComunicado)) {
             return redirect()->to(base_url('/comunicados'))
-                             ->with('error', 'ID de comunicado no válido.');
+                ->with('error', 'ID de comunicado no válido.');
         }
 
         $modelo = new ComunicadosModelo();
         $comunicado = $modelo->obtenerComunicadoPorId($idComunicado);
 
-        if ((int)$comunicado['id_usuario'] !== (int)session()->get('id_usuario')) {
-    return redirect()->to(base_url('/comunicados'))
-                     ->with('error', 'No tiene permisos para desactivar este comunicado.');
-}
         if (!$comunicado) {
             return redirect()->to(base_url('/comunicados'))
-                             ->with('error', 'Comunicado no encontrado.');
+                ->with('error', 'Comunicado no encontrado.');
         }
 
-        $modelo->cambiarEstado($idComunicado, 0);
+        if ((int)$comunicado['id_usuario'] !== (int)session()->get('id_usuario')) {
+            return redirect()->to(base_url('/comunicados'))
+                ->with('error', 'No tiene permisos para cambiar el estado de este comunicado.');
+        }
+
+        $modelo->cambiarEstado($idComunicado, $estado);
 
         return redirect()->to(base_url('/comunicados'))
-                         ->with('success', 'Comunicado desactivado correctamente.');
+            ->with('success', 'Comunicado ' . $texto . ' correctamente.');
     }
 
     public function misComunicados()
@@ -234,47 +254,48 @@ if ($buscar !== '') {
 
         $modelo = new ComunicadosModelo();
 
-       $buscar = trim($this->request->getGet('buscar'));
+        $buscar = trim($this->request->getGet('buscar') ?? '');
 
-if ($buscar !== '') {
-    $comunicados = $modelo->buscarComunicadosPorRol(session()->get('id_rol'), $buscar);
-} else {
-    $comunicados = $modelo->listarComunicadosPorRol(session()->get('id_rol'));
-}
+        if (mb_strlen($buscar) > 80) {
+            $buscar = mb_substr($buscar, 0, 80);
+        }
 
-$data = [
-    'comunicados' => $comunicados
-];
+        if ($buscar !== '') {
+            $comunicados = $modelo->buscarComunicadosPorRol(session()->get('id_rol'), $buscar);
+        } else {
+            $comunicados = $modelo->listarComunicadosPorRol(session()->get('id_rol'));
+        }
 
-        return view('Comunicados/mis_comunicados', $data);
+        return view('Comunicados/mis_comunicados', [
+            'comunicados' => $comunicados
+        ]);
     }
-
 
     public function ver($idComunicado = null)
-{
-    if (!session()->get('logueado')) {
-        return redirect()->to(base_url('/login'));
+    {
+        if (!session()->get('logueado')) {
+            return redirect()->to(base_url('/login'));
+        }
+
+        if ($idComunicado === null || !is_numeric($idComunicado)) {
+            return redirect()->to(base_url('/mis-comunicados'))
+                ->with('error', 'Comunicado no válido.');
+        }
+
+        $modelo = new ComunicadosModelo();
+
+        $comunicado = $modelo->obtenerComunicadoDetalle(
+            $idComunicado,
+            session()->get('id_rol')
+        );
+
+        if (!$comunicado) {
+            return redirect()->to(base_url('/mis-comunicados'))
+                ->with('error', 'No tiene acceso a este comunicado.');
+        }
+
+        return view('Comunicados/ver', [
+            'comunicado' => $comunicado
+        ]);
     }
-
-    if ($idComunicado === null) {
-        return redirect()->to(base_url('/mis-comunicados'))
-                         ->with('error', 'Comunicado no válido.');
-    }
-
-    $modelo = new \App\Models\ComunicadosModelo();
-
-    $comunicado = $modelo->obtenerComunicadoDetalle(
-        $idComunicado,
-        session()->get('id_rol')
-    );
-
-    if (!$comunicado) {
-        return redirect()->to(base_url('/mis-comunicados'))
-                         ->with('error', 'No tiene acceso a este comunicado.');
-    }
-
-    return view('Comunicados/ver', [
-        'comunicado' => $comunicado
-    ]);
-}
 }

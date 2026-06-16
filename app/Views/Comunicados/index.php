@@ -97,24 +97,43 @@
 
             <div class="grupo">
                 <label for="titulo">Título</label>
-                <input type="text" name="titulo" id="titulo" placeholder="Ingrese el título">
+                <input type="text"
+                       name="titulo"
+                       id="titulo"
+                       placeholder="Ingrese el título"
+                       required
+                       minlength="3"
+                       maxlength="100"
+                       value="<?= esc(old('titulo')) ?>">
             </div>
 
             <div class="grupo">
                 <label for="mensaje">Mensaje</label>
-                <textarea name="mensaje" id="mensaje" rows="5" placeholder="Ingrese el mensaje del comunicado"></textarea>
+                <textarea name="mensaje"
+                          id="mensaje"
+                          rows="5"
+                          placeholder="Ingrese el mensaje del comunicado"
+                          required
+                          minlength="5"
+                          maxlength="500"><?= esc(old('mensaje')) ?></textarea>
             </div>
 
             <div class="grupo">
                 <label for="imagen">Imagen (opcional)</label>
-                <input type="file" name="imagen" id="imagen" accept="image/png, image/jpeg, image/jpg">
+                <input type="file"
+                       name="imagen"
+                       id="imagen"
+                       accept="image/png, image/jpeg, image/jpg, image/webp">
             </div>
 
             <div class="grupo">
                 <label>Destinatarios</label>
                 <?php foreach ($roles as $rol): ?>
                     <div class="checkbox-destino">
-                        <input type="checkbox" name="roles_destino[]" value="<?= $rol['id_rol'] ?>" id="rol_<?= $rol['id_rol'] ?>">
+                        <input type="checkbox"
+                               name="roles_destino[]"
+                               value="<?= $rol['id_rol'] ?>"
+                               id="rol_<?= $rol['id_rol'] ?>">
                         <label for="rol_<?= $rol['id_rol'] ?>"><?= esc($rol['nombre_rol']) ?></label>
                     </div>
                 <?php endforeach; ?>
@@ -141,14 +160,20 @@
                         <input type="text"
                                name="titulo"
                                id="titulo_<?= $comunicado['id_comunicado'] ?>"
-                               value="<?= esc($comunicado['titulo']) ?>">
+                               value="<?= esc($comunicado['titulo']) ?>"
+                               required
+                               minlength="3"
+                               maxlength="100">
                     </div>
 
                     <div class="grupo">
                         <label for="mensaje_<?= $comunicado['id_comunicado'] ?>">Mensaje</label>
                         <textarea name="mensaje"
                                   id="mensaje_<?= $comunicado['id_comunicado'] ?>"
-                                  rows="5"><?= esc($comunicado['mensaje']) ?></textarea>
+                                  rows="5"
+                                  required
+                                  minlength="5"
+                                  maxlength="500"><?= esc($comunicado['mensaje']) ?></textarea>
                     </div>
 
                     <div class="grupo">
@@ -168,7 +193,7 @@
                         <input type="file"
                                name="imagen"
                                id="imagen_<?= $comunicado['id_comunicado'] ?>"
-                               accept="image/png, image/jpeg, image/jpg">
+                               accept="image/png, image/jpeg, image/jpg, image/webp">
                     </div>
 
                     <div class="grupo">
@@ -189,7 +214,9 @@
 
                     <div class="grupo">
                         <label>Estado actual</label>
-                        <input type="text" value="<?= (int)$comunicado['estado'] === 1 ? 'Activo' : 'Inactivo' ?>" disabled>
+                        <input type="text"
+                               value="<?= (int)$comunicado['estado'] === 1 ? 'Activo' : 'Inactivo' ?>"
+                               disabled>
                     </div>
 
                     <button type="submit" class="btn btn-guardar">Guardar cambios</button>
