@@ -28,7 +28,6 @@
                     <th>Apellidos</th>
                     <th>Teléfono</th>
                     <th>Correo</th>
-                    <th>Número de registro</th>
                     <th>Usuario vinculado</th>
                     <th>Estado</th>
                     <th>Fecha de creación</th>
@@ -44,7 +43,6 @@
                             <td><?= esc($psicologo['apellidos']) ?></td>
                             <td><?= esc($psicologo['telefono']) ?></td>
                             <td><?= esc($psicologo['correo']) ?></td>
-                            <td><?= esc($psicologo['numero_registro']) ?></td>
                             <td>
                                 <?php if ((int)$psicologo['bloqueado_activacion'] === 1): ?>
                                     <span class="estado-inactivo">Bloqueado</span>
@@ -83,7 +81,7 @@
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="10" class="sin-registros">No existen psicólogos registrados.</td>
+                        <td colspan="9" class="sin-registros">No existen psicólogos registrados.</td>
                     </tr>
                 <?php endif; ?>
             </tbody>
@@ -150,20 +148,6 @@
                        required
                        maxlength="100"
                        value="<?= esc(old('correo')) ?>">
-            </div>
-
-            <div class="grupo">
-                <label for="numero_registro">Número de registro</label>
-                <input type="text"
-                       name="numero_registro"
-                       id="numero_registro"
-                       placeholder="Ingrese el número de registro"
-                       required
-                       minlength="3"
-                       maxlength="30"
-                       pattern="[A-Za-z0-9-]+"
-                       title="Solo se permiten letras, números y guion"
-                       value="<?= esc(old('numero_registro')) ?>">
             </div>
 
             <button type="submit" class="btn btn-guardar">Guardar</button>
@@ -233,20 +217,6 @@
                                placeholder="Ingrese el correo electrónico"
                                required
                                maxlength="100">
-                    </div>
-
-                    <div class="grupo">
-                        <label for="numero_registro_<?= $psicologo['id_psicologo'] ?>">Número de registro</label>
-                        <input type="text"
-                               name="numero_registro"
-                               id="numero_registro_<?= $psicologo['id_psicologo'] ?>"
-                               value="<?= esc($psicologo['numero_registro']) ?>"
-                               placeholder="Ingrese el número de registro"
-                               required
-                               minlength="3"
-                               maxlength="30"
-                               pattern="[A-Za-z0-9-]+"
-                               title="Solo se permiten letras, números y guion">
                     </div>
 
                     <div class="grupo">

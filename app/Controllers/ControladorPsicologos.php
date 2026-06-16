@@ -13,7 +13,7 @@ class ControladorPsicologos extends BaseController
         return session()->get('logueado') && session()->get('rol') === 'ADMINISTRATIVO';
     }
 
-    private function validarDatosPsicologo($nombres, $apellidos, $telefono, $correo, $numeroRegistro)
+    private function validarDatosPsicologo($nombres, $apellidos, $telefono, $correo)
     {
         if ($nombres === '') {
             return 'Los nombres son obligatorios.';
@@ -75,22 +75,6 @@ class ControladorPsicologos extends BaseController
             return 'El correo no debe superar los 100 caracteres.';
         }
 
-        if ($numeroRegistro === '') {
-            return 'El número de registro es obligatorio.';
-        }
-
-        if (mb_strlen($numeroRegistro) < 3) {
-            return 'El número de registro debe tener al menos 3 caracteres.';
-        }
-
-        if (mb_strlen($numeroRegistro) > 30) {
-            return 'El número de registro no debe superar los 30 caracteres.';
-        }
-
-        if (!preg_match('/^[a-zA-Z0-9\-]+$/', $numeroRegistro)) {
-            return 'El número de registro solo debe contener letras, números y guion.';
-        }
-
         return null;
     }
 
@@ -133,13 +117,12 @@ class ControladorPsicologos extends BaseController
 
         $modelo = new PsicologoModelo();
 
-        $nombres        = trim($this->request->getPost('nombres') ?? '');
-        $apellidos      = trim($this->request->getPost('apellidos') ?? '');
-        $telefono       = trim($this->request->getPost('telefono') ?? '');
-        $correo         = trim($this->request->getPost('correo') ?? '');
-        $numeroRegistro = trim($this->request->getPost('numero_registro') ?? '');
+        $nombres   = trim($this->request->getPost('nombres') ?? '');
+        $apellidos = trim($this->request->getPost('apellidos') ?? '');
+        $telefono  = trim($this->request->getPost('telefono') ?? '');
+        $correo    = trim($this->request->getPost('correo') ?? '');
 
-        $error = $this->validarDatosPsicologo($nombres, $apellidos, $telefono, $correo, $numeroRegistro);
+        $error = $this->validarDatosPsicologo($nombres, $apellidos, $telefono, $correo);
 
         if ($error !== null) {
             return redirect()->to(base_url('/psicologos'))
@@ -159,20 +142,13 @@ class ControladorPsicologos extends BaseController
                 ->withInput();
         }
 
-        if ($modelo->existeNumeroRegistro($numeroRegistro)) {
-            return redirect()->to(base_url('/psicologos'))
-                ->with('error', 'Ya existe un psicólogo registrado con ese número de registro.')
-                ->withInput();
-        }
-
         $modelo->insert([
-            'id_usuario'       => null,
-            'nombres'          => $nombres,
-            'apellidos'        => $apellidos,
-            'telefono'         => $telefono,
-            'correo'           => $correo,
-            'numero_registro'  => $numeroRegistro,
-            'estado'           => 1
+            'id_usuario' => null,
+            'nombres'    => $nombres,
+            'apellidos'  => $apellidos,
+            'telefono'   => $telefono,
+            'correo'     => $correo,
+            'estado'     => 1
         ]);
 
         return redirect()->to(base_url('/psicologos'))
@@ -199,13 +175,12 @@ class ControladorPsicologos extends BaseController
                 ->with('error', 'Psicólogo no encontrado.');
         }
 
-        $nombres        = trim($this->request->getPost('nombres') ?? '');
-        $apellidos      = trim($this->request->getPost('apellidos') ?? '');
-        $telefono       = trim($this->request->getPost('telefono') ?? '');
-        $correo         = trim($this->request->getPost('correo') ?? '');
-        $numeroRegistro = trim($this->request->getPost('numero_registro') ?? '');
+        $nombres   = trim($this->request->getPost('nombres') ?? '');
+        $apellidos = trim($this->request->getPost('apellidos') ?? '');
+        $telefono  = trim($this->request->getPost('telefono') ?? '');
+        $correo    = trim($this->request->getPost('correo') ?? '');
 
-        $error = $this->validarDatosPsicologo($nombres, $apellidos, $telefono, $correo, $numeroRegistro);
+        $error = $this->validarDatosPsicologo($nombres, $apellidos, $telefono, $correo);
 
         if ($error !== null) {
             return redirect()->to(base_url('/psicologos'))
@@ -225,19 +200,12 @@ class ControladorPsicologos extends BaseController
                 ->withInput();
         }
 
-        if ($modelo->existeNumeroRegistro($numeroRegistro, $id)) {
-            return redirect()->to(base_url('/psicologos'))
-                ->with('error', 'Ya existe otro psicólogo registrado con ese número de registro.')
-                ->withInput();
-        }
-
         $modelo->update($id, [
-            'nombres'                => $nombres,
-            'apellidos'              => $apellidos,
-            'telefono'               => $telefono,
-            'correo'                 => $correo,
-            'numero_registro'        => $numeroRegistro,
-            'bloqueado_activacion'   => $this->request->getPost('bloqueado_activacion') ? 0 : $this->request->getPost('bloqueado_actual')
+            'nombres'              => $nombres,
+            'apellidos'            => $apellidos,
+            'telefono'             => $telefono,
+            'correo'               => $correo,
+            'bloqueado_activacion' => $this->request->getPost('bloqueado_activacion') ? 0 : $this->request->getPost('bloqueado_actual')
         ]);
 
         return redirect()->to(base_url('/psicologos'))
