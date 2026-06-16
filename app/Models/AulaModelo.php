@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class AulaModelo extends Model
 {
-    protected $table = 'aulas';
+   protected $table = 'aulas';
     protected $primaryKey = 'id_aula';
     protected $returnType = 'array';
 
@@ -54,5 +54,16 @@ class AulaModelo extends Model
         return $builder->orderBy('id_aula', 'DESC')
                        ->get()
                        ->getResultArray();
+    }
+
+    public function existeAula($nombreAula, $idAula = null)
+    {
+        $builder = $this->where('nombre_aula', $nombreAula);
+
+        if ($idAula !== null) {
+            $builder->where('id_aula !=', $idAula);
+        }
+
+        return $builder->first();
     }
 }

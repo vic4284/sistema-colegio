@@ -92,12 +92,28 @@
 
             <div class="grupo">
                 <label for="nombre_aula">Nombre del aula</label>
-                <input type="text" name="nombre_aula" id="nombre_aula" placeholder="Ej: Aula 1" required>
+                <input type="text"
+                       name="nombre_aula"
+                       id="nombre_aula"
+                       placeholder="Ej: Aula 1"
+                       required
+                       minlength="3"
+                       maxlength="50"
+                       pattern="[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ -]+"
+                       title="Solo se permiten letras, números, espacios y guion"
+                       value="<?= esc(old('nombre_aula')) ?>">
             </div>
 
             <div class="grupo">
                 <label for="capacidad">Capacidad</label>
-                <input type="number" name="capacidad" id="capacidad" placeholder="Ej: 30" min="1" required>
+                <input type="number"
+                       name="capacidad"
+                       id="capacidad"
+                       placeholder="Ej: 30"
+                       min="1"
+                       max="100"
+                       required
+                       value="<?= esc(old('capacidad')) ?>">
             </div>
 
             <button type="submit" class="btn btn-guardar">Guardar</button>
@@ -124,7 +140,11 @@
                                id="nombre_aula_<?= $aula['id_aula'] ?>"
                                value="<?= esc($aula['nombre_aula']) ?>"
                                placeholder="Ej: Aula 1"
-                               required>
+                               required
+                               minlength="3"
+                               maxlength="50"
+                               pattern="[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ -]+"
+                               title="Solo se permiten letras, números, espacios y guion">
                     </div>
 
                     <div class="grupo">
@@ -134,6 +154,7 @@
                                id="capacidad_<?= $aula['id_aula'] ?>"
                                value="<?= esc($aula['capacidad']) ?>"
                                min="1"
+                               max="100"
                                required>
                     </div>
 
