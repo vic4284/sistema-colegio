@@ -16,7 +16,7 @@
     <?php endif; ?>
 
     <div style="margin-bottom: 20px;">
-        <a class="btn btn-guardar" href="#modal-insertar-profesor">Nuevo ProfesorEE</a>
+        <a class="btn btn-guardar" href="#modal-insertar-profesor">Nuevo Profesor</a>
     </div>
 
     <div class="tabla-responsive">
@@ -46,15 +46,15 @@
                             <td><?= esc($profesor['correo']) ?></td>
                             <td><?= esc($profesor['especialidad']) ?></td>
                             <td>
-    <?php if ((int)$profesor['bloqueado_activacion'] === 1): ?>
-        <span class="estado-inactivo">Bloqueado</span>
-    <?php elseif (!empty($profesor['id_usuario'])): ?>
-        <span class="estado-activo">Cuenta activada</span>
-    <?php else: ?>
-        <span class="estado-pendiente">Pendiente</span>
-    <?php endif; ?>
-</td>
-<td>
+                                <?php if ((int)$profesor['bloqueado_activacion'] === 1): ?>
+                                    <span class="estado-inactivo">Bloqueado</span>
+                                <?php elseif (!empty($profesor['id_usuario'])): ?>
+                                    <span class="estado-activo">Cuenta activada</span>
+                                <?php else: ?>
+                                    <span class="estado-pendiente">Pendiente</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
                                 <?php if ((int)$profesor['estado'] === 1): ?>
                                     <span class="estado-activo">Activo</span>
                                 <?php else: ?>
@@ -104,27 +104,69 @@
 
             <div class="grupo">
                 <label for="nombres">Nombres</label>
-                <input type="text" name="nombres" id="nombres" placeholder="Ingrese los nombres" required>
+                <input type="text"
+                       name="nombres"
+                       id="nombres"
+                       placeholder="Ingrese los nombres"
+                       required
+                       minlength="2"
+                       maxlength="50"
+                       pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
+                       title="Solo se permiten letras y espacios"
+                       value="<?= esc(old('nombres')) ?>">
             </div>
 
             <div class="grupo">
                 <label for="apellidos">Apellidos</label>
-                <input type="text" name="apellidos" id="apellidos" placeholder="Ingrese los apellidos" required>
+                <input type="text"
+                       name="apellidos"
+                       id="apellidos"
+                       placeholder="Ingrese los apellidos"
+                       required
+                       minlength="2"
+                       maxlength="50"
+                       pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
+                       title="Solo se permiten letras y espacios"
+                       value="<?= esc(old('apellidos')) ?>">
             </div>
 
             <div class="grupo">
                 <label for="telefono">Teléfono</label>
-                <input type="text" name="telefono" id="telefono" placeholder="Ingrese el teléfono">
+                <input type="text"
+                       name="telefono"
+                       id="telefono"
+                       placeholder="Ingrese el teléfono"
+                       required
+                       minlength="7"
+                       maxlength="15"
+                       pattern="[0-9]+"
+                       title="Solo se permiten números"
+                       value="<?= esc(old('telefono')) ?>">
             </div>
 
             <div class="grupo">
                 <label for="correo">Correo</label>
-                <input type="email" name="correo" id="correo" placeholder="Ingrese el correo" required>
+                <input type="email"
+                       name="correo"
+                       id="correo"
+                       placeholder="Ingrese el correo electrónico"
+                       required
+                       maxlength="100"
+                       value="<?= esc(old('correo')) ?>">
             </div>
 
             <div class="grupo">
                 <label for="especialidad">Especialidad</label>
-                <input type="text" name="especialidad" id="especialidad" placeholder="Ingrese la especialidad">
+                <input type="text"
+                       name="especialidad"
+                       id="especialidad"
+                       placeholder="Ingrese la especialidad"
+                       required
+                       minlength="3"
+                       maxlength="80"
+                       pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
+                       title="Solo se permiten letras y espacios"
+                       value="<?= esc(old('especialidad')) ?>">
             </div>
 
             <button type="submit" class="btn btn-guardar">Guardar</button>
@@ -151,7 +193,11 @@
                                id="nombres_<?= $profesor['id_profesor'] ?>"
                                value="<?= esc($profesor['nombres']) ?>"
                                placeholder="Ingrese los nombres"
-                               required>
+                               required
+                               minlength="2"
+                               maxlength="50"
+                               pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
+                               title="Solo se permiten letras y espacios">
                     </div>
 
                     <div class="grupo">
@@ -161,7 +207,11 @@
                                id="apellidos_<?= $profesor['id_profesor'] ?>"
                                value="<?= esc($profesor['apellidos']) ?>"
                                placeholder="Ingrese los apellidos"
-                               required>
+                               required
+                               minlength="2"
+                               maxlength="50"
+                               pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
+                               title="Solo se permiten letras y espacios">
                     </div>
 
                     <div class="grupo">
@@ -170,7 +220,12 @@
                                name="telefono"
                                id="telefono_<?= $profesor['id_profesor'] ?>"
                                value="<?= esc($profesor['telefono']) ?>"
-                               placeholder="Ingrese el teléfono">
+                               placeholder="Ingrese el teléfono"
+                               required
+                               minlength="7"
+                               maxlength="15"
+                               pattern="[0-9]+"
+                               title="Solo se permiten números">
                     </div>
 
                     <div class="grupo">
@@ -179,8 +234,9 @@
                                name="correo"
                                id="correo_<?= $profesor['id_profesor'] ?>"
                                value="<?= esc($profesor['correo']) ?>"
-                               placeholder="Ingrese el correo"
-                               required>
+                               placeholder="Ingrese el correo electrónico"
+                               required
+                               maxlength="100">
                     </div>
 
                     <div class="grupo">
@@ -189,36 +245,41 @@
                                name="especialidad"
                                id="especialidad_<?= $profesor['id_profesor'] ?>"
                                value="<?= esc($profesor['especialidad']) ?>"
-                               placeholder="Ingrese la especialidad">
+                               placeholder="Ingrese la especialidad"
+                               required
+                               minlength="3"
+                               maxlength="80"
+                               pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
+                               title="Solo se permiten letras y espacios">
                     </div>
 
                     <div class="grupo">
-    <label>Estado de la cuenta</label>
+                        <label>Estado de la cuenta</label>
 
-    <?php if ((int)$profesor['bloqueado_activacion'] === 1): ?>
-        <input type="text" value="Bloqueado por intentos fallidos" disabled>
+                        <?php if ((int)$profesor['bloqueado_activacion'] === 1): ?>
+                            <input type="text" value="Bloqueado por intentos fallidos" disabled>
+                            <input type="hidden" name="bloqueado_actual" value="1">
 
-        <input type="hidden" name="bloqueado_actual" value="1">
+                            <div class="grupo-desbloqueo">
+                                <input type="checkbox"
+                                       id="desbloquear_<?= $profesor['id_profesor'] ?>"
+                                       name="bloqueado_activacion"
+                                       value="1">
 
-      <div class="grupo-desbloqueo">
-    <input type="checkbox" id="desbloquear_<?= $profesor['id_profesor'] ?>"
-           name="bloqueado_activacion"
-           value="1">
+                                <label for="desbloquear_<?= $profesor['id_profesor'] ?>">
+                                    Desbloquear activación de cuenta
+                                </label>
+                            </div>
 
-    <label for="desbloquear_<?= $profesor['id_profesor'] ?>">
-        Desbloquear activación de cuenta
-    </label>
-</div>
+                        <?php elseif (!empty($profesor['id_usuario'])): ?>
+                            <input type="text" value="Cuenta activada en el sistema" disabled>
+                            <input type="hidden" name="bloqueado_actual" value="0">
 
-    <?php elseif (!empty($profesor['id_usuario'])): ?>
-        <input type="text" value="Cuenta activada en el sistema" disabled>
-        <input type="hidden" name="bloqueado_actual" value="0">
-
-    <?php else: ?>
-        <input type="text" value="Pendiente de activación por el usuario" disabled>
-        <input type="hidden" name="bloqueado_actual" value="0">
-    <?php endif; ?>
-</div>
+                        <?php else: ?>
+                            <input type="text" value="Pendiente de activación por el usuario" disabled>
+                            <input type="hidden" name="bloqueado_actual" value="0">
+                        <?php endif; ?>
+                    </div>
 
                     <div class="grupo">
                         <label>Estado actual</label>
