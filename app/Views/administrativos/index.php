@@ -108,6 +108,8 @@
                        required
                        minlength="2"
                        maxlength="50"
+                       pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
+                       title="Solo se permiten letras y espacios"
                        value="<?= esc(old('nombres')) ?>">
             </div>
 
@@ -120,6 +122,8 @@
                        required
                        minlength="2"
                        maxlength="50"
+                       pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
+                       title="Solo se permiten letras y espacios"
                        value="<?= esc(old('apellidos')) ?>">
             </div>
 
@@ -133,6 +137,7 @@
                        minlength="7"
                        maxlength="15"
                        pattern="[0-9]+"
+                       title="Solo se permiten números"
                        value="<?= esc(old('telefono')) ?>">
             </div>
 
@@ -156,6 +161,8 @@
                        required
                        minlength="3"
                        maxlength="80"
+                       pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
+                       title="Solo se permiten letras y espacios"
                        value="<?= esc(old('cargo')) ?>">
             </div>
 
@@ -184,7 +191,9 @@
                                placeholder="Ingrese los nombres"
                                required
                                minlength="2"
-                               maxlength="50">
+                               maxlength="50"
+                               pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
+                               title="Solo se permiten letras y espacios">
                     </div>
 
                     <div class="grupo">
@@ -196,7 +205,9 @@
                                placeholder="Ingrese los apellidos"
                                required
                                minlength="2"
-                               maxlength="50">
+                               maxlength="50"
+                               pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
+                               title="Solo se permiten letras y espacios">
                     </div>
 
                     <div class="grupo">
@@ -209,7 +220,8 @@
                                required
                                minlength="7"
                                maxlength="15"
-                               pattern="[0-9]+">
+                               pattern="[0-9]+"
+                               title="Solo se permiten números">
                     </div>
 
                     <div class="grupo">
@@ -232,7 +244,9 @@
                                placeholder="Ingrese el cargo"
                                required
                                minlength="3"
-                               maxlength="80">
+                               maxlength="80"
+                               pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
+                               title="Solo se permiten letras y espacios">
                     </div>
 
                     <div class="grupo">
