@@ -242,7 +242,7 @@
                                id="cargo_<?= $administrativo['id_administrativo'] ?>"
                                value="<?= esc($administrativo['cargo']) ?>"
                                placeholder="Ingrese el cargo"
-                               required
+                               
                                minlength="3"
                                maxlength="80"
                                pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
