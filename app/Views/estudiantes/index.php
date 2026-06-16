@@ -29,6 +29,7 @@
                     <th>Teléfono</th>
                     <th>Correo</th>
                     <th>Dirección</th>
+                    <th>Género</th>
                     <th>Usuario vinculado</th>
                     <th>Estado</th>
                     <th>Fecha de creación</th>
@@ -45,6 +46,7 @@
                             <td><?= esc($estudiante['telefono']) ?></td>
                             <td><?= esc($estudiante['correo']) ?></td>
                             <td><?= esc($estudiante['direccion']) ?></td>
+                            <td><?= !empty($estudiante['genero']) ? esc($estudiante['genero']) : 'Sin registro' ?></td>
                             <td>
                                 <?php if ((int)$estudiante['bloqueado_activacion'] === 1): ?>
                                     <span class="estado-inactivo">Bloqueado</span>
@@ -83,7 +85,7 @@
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="10" class="sin-registros">No existen estudiantes registrados.</td>
+                        <td colspan="11" class="sin-registros">No existen estudiantes registrados.</td>
                     </tr>
                 <?php endif; ?>
             </tbody>
@@ -164,6 +166,15 @@
                        pattern="[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ .,#-]+"
                        title="Solo se permiten letras, números, espacios, punto, coma, numeral y guion"
                        value="<?= esc(old('direccion')) ?>">
+            </div>
+
+            <div class="grupo">
+                <label for="genero">Género</label>
+                <select name="genero" id="genero" required>
+                    <option value="">Seleccione el género</option>
+                    <option value="MASCULINO" <?= old('genero') === 'MASCULINO' ? 'selected' : '' ?>>MASCULINO</option>
+                    <option value="FEMENINO" <?= old('genero') === 'FEMENINO' ? 'selected' : '' ?>>FEMENINO</option>
+                </select>
             </div>
 
             <button type="submit" class="btn btn-guardar">Guardar</button>
@@ -247,6 +258,17 @@
                                maxlength="150"
                                pattern="[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ .,#-]+"
                                title="Solo se permiten letras, números, espacios, punto, coma, numeral y guion">
+                    </div>
+
+                    <div class="grupo">
+                        <label for="genero_<?= $estudiante['id_estudiante'] ?>">Género</label>
+                        <select name="genero"
+                                id="genero_<?= $estudiante['id_estudiante'] ?>"
+                                required>
+                            <option value="">Seleccione el género</option>
+                            <option value="MASCULINO" <?= ($estudiante['genero'] ?? '') === 'MASCULINO' ? 'selected' : '' ?>>MASCULINO</option>
+                            <option value="FEMENINO" <?= ($estudiante['genero'] ?? '') === 'FEMENINO' ? 'selected' : '' ?>>FEMENINO</option>
+                        </select>
                     </div>
 
                     <div class="grupo">

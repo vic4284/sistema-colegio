@@ -7,12 +7,12 @@ use CodeIgniter\HTTP\ResponseInterface;
 use App\Models\EstudianteModelo;
 class ControladorEstudiantes extends BaseController
 {
-     private function esAdministrativo()
+    private function esAdministrativo()
     {
         return session()->get('logueado') && session()->get('rol') === 'ADMINISTRATIVO';
     }
 
-    private function validarDatosEstudiante($nombres, $apellidos, $telefono, $correo, $direccion)
+    private function validarDatosEstudiante($nombres, $apellidos, $telefono, $correo, $direccion, $genero)
     {
         if ($nombres === '') return 'Los nombres son obligatorios.';
         if (mb_strlen($nombres) < 2) return 'Los nombres deben tener al menos 2 caracteres.';
@@ -37,6 +37,9 @@ class ControladorEstudiantes extends BaseController
         if (mb_strlen($direccion) < 3) return 'La dirección debe tener al menos 3 caracteres.';
         if (mb_strlen($direccion) > 150) return 'La dirección no debe superar los 150 caracteres.';
         if (!preg_match('/^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s\.\,\#\-]+$/u', $direccion)) return 'La dirección contiene caracteres no permitidos.';
+
+        if ($genero === '') return 'Debe seleccionar el género.';
+        if (!in_array($genero, ['MASCULINO', 'FEMENINO'])) return 'El género seleccionado no es válido.';
 
         return null;
     }
@@ -85,8 +88,9 @@ class ControladorEstudiantes extends BaseController
         $telefono  = trim($this->request->getPost('telefono') ?? '');
         $correo    = trim($this->request->getPost('correo') ?? '');
         $direccion = trim($this->request->getPost('direccion') ?? '');
+        $genero    = trim($this->request->getPost('genero') ?? '');
 
-        $error = $this->validarDatosEstudiante($nombres, $apellidos, $telefono, $correo, $direccion);
+        $error = $this->validarDatosEstudiante($nombres, $apellidos, $telefono, $correo, $direccion, $genero);
 
         if ($error !== null) {
             return redirect()->to(base_url('/estudiantes'))
@@ -113,6 +117,7 @@ class ControladorEstudiantes extends BaseController
             'telefono'   => $telefono,
             'correo'     => $correo,
             'direccion'  => $direccion,
+            'genero'     => $genero,
             'estado'     => 1
         ]);
 
@@ -145,8 +150,9 @@ class ControladorEstudiantes extends BaseController
         $telefono  = trim($this->request->getPost('telefono') ?? '');
         $correo    = trim($this->request->getPost('correo') ?? '');
         $direccion = trim($this->request->getPost('direccion') ?? '');
+        $genero    = trim($this->request->getPost('genero') ?? '');
 
-        $error = $this->validarDatosEstudiante($nombres, $apellidos, $telefono, $correo, $direccion);
+        $error = $this->validarDatosEstudiante($nombres, $apellidos, $telefono, $correo, $direccion, $genero);
 
         if ($error !== null) {
             return redirect()->to(base_url('/estudiantes'))
@@ -172,6 +178,7 @@ class ControladorEstudiantes extends BaseController
             'telefono'             => $telefono,
             'correo'               => $correo,
             'direccion'            => $direccion,
+            'genero'               => $genero,
             'bloqueado_activacion' => $this->request->getPost('bloqueado_activacion') ? 0 : $this->request->getPost('bloqueado_actual')
         ]);
 
