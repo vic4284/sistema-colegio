@@ -979,11 +979,7 @@ th {
     order: 1;
 }
 
-.checkbox-destino label {
-    margin: 0;
-    font-weight: 600;
-    order: 2;
-}
+
 
 .contenedor-tarjetas-comunicados {
     display: grid;
