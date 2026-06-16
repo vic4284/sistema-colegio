@@ -52,8 +52,8 @@
                 <button type="button" class="menu-dropdown">Asignaciones</button>
 
                 <div class="dropdown-content">
-                    <a href="<?= base_url('/asignacion-profesores') ?>">Profesores</a>
-                    <a href="<?= base_url('/asignacion-estudiantes') ?>">Estudiantes</a>
+                    <a href="<?= base_url('/asignacion-profesores') ?>">Asig. Profesores</a>
+                    <a href="<?= base_url('/asignacion-estudiantes') ?>">Asig. Estudiantes</a>
                 </div>
             </div>
 
