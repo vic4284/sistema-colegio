@@ -16,4 +16,15 @@ class MateriaModelo extends Model
         'estado',
         'fecha_actualizacion'
     ];
+
+    public function existeMateria($nombreMateria, $idMateria = null)
+    {
+        $builder = $this->where('nombre_materia', $nombreMateria);
+
+        if ($idMateria !== null) {
+            $builder->where('id_materia !=', $idMateria);
+        }
+
+        return $builder->first();
+    }
 }
