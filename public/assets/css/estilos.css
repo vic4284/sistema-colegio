@@ -965,7 +965,24 @@ th {
 }
 
 .checkbox-destino {
-    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    margin: 8px 0;
+}
+
+.checkbox-destino input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    order: 1;
+}
+
+.checkbox-destino label {
+    margin: 0;
+    font-weight: 600;
+    order: 2;
 }
 
 .contenedor-tarjetas-comunicados {
