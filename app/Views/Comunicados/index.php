@@ -128,6 +128,15 @@
 
             <div class="grupo">
                 <label>Destinatarios</label>
+
+                <div class="checkbox-destino">
+                    <input type="checkbox"
+                           name="roles_destino[]"
+                           value="TODOS"
+                           id="rol_todos">
+                    <label for="rol_todos"><strong>TODOS</strong></label>
+                </div>
+
                 <?php foreach ($roles as $rol): ?>
                     <div class="checkbox-destino">
                         <input type="checkbox"
@@ -147,6 +156,12 @@
 
 <?php if (!empty($comunicados)): ?>
     <?php foreach ($comunicados as $comunicado): ?>
+        <?php
+            $totalRoles = count($roles);
+            $totalSeleccionados = count($comunicado['roles_destino']);
+            $todosSeleccionados = ($totalRoles > 0 && $totalRoles === $totalSeleccionados);
+        ?>
+
         <div id="modal-editar-<?= $comunicado['id_comunicado'] ?>" class="modal">
             <div class="modal-contenido">
                 <a href="#" class="modal-cerrar">&times;</a>
@@ -198,6 +213,18 @@
 
                     <div class="grupo">
                         <label>Destinatarios</label>
+
+                        <div class="checkbox-destino">
+                            <input type="checkbox"
+                                   name="roles_destino[]"
+                                   value="TODOS"
+                                   id="edit_rol_todos_<?= $comunicado['id_comunicado'] ?>"
+                                   <?= $todosSeleccionados ? 'checked' : '' ?>>
+                            <label for="edit_rol_todos_<?= $comunicado['id_comunicado'] ?>">
+                                <strong>TODOS</strong>
+                            </label>
+                        </div>
+
                         <?php foreach ($roles as $rol): ?>
                             <div class="checkbox-destino">
                                 <input type="checkbox"

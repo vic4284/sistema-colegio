@@ -13,6 +13,31 @@ class ControladorComunicados extends BaseController
             in_array(session()->get('rol'), ['ADMINISTRATIVO', 'PROFESOR', 'PSICOLOGIA']);
     }
 
+    private function prepararRolesDestino($rolesDestino)
+    {
+        if (empty($rolesDestino)) {
+            return [];
+        }
+
+        $modelo = new ComunicadosModelo();
+        $roles = $modelo->obtenerRoles();
+        $idsRoles = array_column($roles, 'id_rol');
+
+        if (in_array('TODOS', $rolesDestino)) {
+            return $idsRoles;
+        }
+
+        $rolesFiltrados = [];
+
+        foreach ($rolesDestino as $idRol) {
+            if (in_array($idRol, $idsRoles)) {
+                $rolesFiltrados[] = $idRol;
+            }
+        }
+
+        return $rolesFiltrados;
+    }
+
     private function validarDatosComunicado($titulo, $mensaje, $rolesDestino, $imagen = null)
     {
         if ($titulo === '') {
@@ -106,6 +131,8 @@ class ControladorComunicados extends BaseController
         $rolesDestino = $this->request->getPost('roles_destino');
         $imagen       = $this->request->getFile('imagen');
 
+        $rolesDestino = $this->prepararRolesDestino($rolesDestino);
+
         $error = $this->validarDatosComunicado($titulo, $mensaje, $rolesDestino, $imagen);
 
         if ($error !== null) {
@@ -168,6 +195,8 @@ class ControladorComunicados extends BaseController
         $mensaje      = trim($this->request->getPost('mensaje') ?? '');
         $rolesDestino = $this->request->getPost('roles_destino');
         $imagen       = $this->request->getFile('imagen');
+
+        $rolesDestino = $this->prepararRolesDestino($rolesDestino);
 
         $error = $this->validarDatosComunicado($titulo, $mensaje, $rolesDestino, $imagen);
 
