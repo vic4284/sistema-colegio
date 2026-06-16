@@ -965,7 +965,9 @@ th {
 }
 
 .checkbox-destino {
-    
+   
+    align-items: center;
+    justify-content: flex-start;
     gap: 10px;
     margin: 8px 0;
 }
