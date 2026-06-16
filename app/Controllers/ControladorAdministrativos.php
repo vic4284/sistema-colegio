@@ -66,11 +66,6 @@ class ControladorAdministrativos extends BaseController
             return 'El correo no debe superar los 100 caracteres.';
         }
 
-        
-
-        if (mb_strlen($cargo) < 3) {
-            return 'El cargo debe tener al menos 3 caracteres.';
-        }
 
         if (mb_strlen($cargo) > 80) {
             return 'El cargo no debe superar los 80 caracteres.';
