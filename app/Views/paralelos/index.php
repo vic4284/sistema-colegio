@@ -99,7 +99,7 @@
                 <select name="id_grado" id="id_grado" required>
                     <option value="">Seleccione nivel y grado</option>
                     <?php foreach ($grados as $grado): ?>
-                        <option value="<?= esc($grado['id_grado']) ?>">
+                        <option value="<?= esc($grado['id_grado']) ?>" <?= old('id_grado') == $grado['id_grado'] ? 'selected' : '' ?>>
                             <?= esc($grado['nombre_nivel'] . ' - ' . $grado['nombre_grado']) ?>
                         </option>
                     <?php endforeach; ?>
@@ -111,7 +111,7 @@
                 <select name="id_seccion" id="id_seccion" required>
                     <option value="">Seleccione sección</option>
                     <?php foreach ($secciones as $seccion): ?>
-                        <option value="<?= esc($seccion['id_seccion']) ?>">
+                        <option value="<?= esc($seccion['id_seccion']) ?>" <?= old('id_seccion') == $seccion['id_seccion'] ? 'selected' : '' ?>>
                             <?= esc($seccion['nombre_seccion']) ?>
                         </option>
                     <?php endforeach; ?>
@@ -138,6 +138,7 @@
                     <div class="grupo">
                         <label for="id_grado_<?= $paralelo['id_paralelo'] ?>">Nivel y grado</label>
                         <select name="id_grado" id="id_grado_<?= $paralelo['id_paralelo'] ?>" required>
+                            <option value="">Seleccione nivel y grado</option>
                             <?php foreach ($grados as $grado): ?>
                                 <option value="<?= esc($grado['id_grado']) ?>"
                                     <?= ((int)$paralelo['id_grado'] === (int)$grado['id_grado']) ? 'selected' : '' ?>>
@@ -150,6 +151,7 @@
                     <div class="grupo">
                         <label for="id_seccion_<?= $paralelo['id_paralelo'] ?>">Sección</label>
                         <select name="id_seccion" id="id_seccion_<?= $paralelo['id_paralelo'] ?>" required>
+                            <option value="">Seleccione sección</option>
                             <?php foreach ($secciones as $seccion): ?>
                                 <option value="<?= esc($seccion['id_seccion']) ?>"
                                     <?= ((int)$paralelo['id_seccion'] === (int)$seccion['id_seccion']) ? 'selected' : '' ?>>

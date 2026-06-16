@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class ParaleloModelo extends Model
 {
-     protected $table = 'paralelos';
+   protected $table = 'paralelos';
     protected $primaryKey = 'id_paralelo';
     protected $returnType = 'array';
 
@@ -80,5 +80,17 @@ class ParaleloModelo extends Model
         return $builder->orderBy('paralelos.id_paralelo', 'DESC')
                        ->get()
                        ->getResultArray();
+    }
+
+    public function existeParalelo($idGrado, $idSeccion, $idParalelo = null)
+    {
+        $builder = $this->where('id_grado', $idGrado)
+                        ->where('id_seccion', $idSeccion);
+
+        if ($idParalelo !== null) {
+            $builder->where('id_paralelo !=', $idParalelo);
+        }
+
+        return $builder->first();
     }
 }
