@@ -46,14 +46,14 @@
                             <td><?= esc($estudiante['correo']) ?></td>
                             <td><?= esc($estudiante['direccion']) ?></td>
                             <td>
-    <?php if ((int)$estudiante['bloqueado_activacion'] === 1): ?>
-        <span class="estado-inactivo">Bloqueado</span>
-    <?php elseif (!empty($estudiante['id_usuario'])): ?>
-        <span class="estado-activo">Cuenta activada</span>
-    <?php else: ?>
-        <span class="estado-pendiente">Pendiente</span>
-    <?php endif; ?>
-</td>
+                                <?php if ((int)$estudiante['bloqueado_activacion'] === 1): ?>
+                                    <span class="estado-inactivo">Bloqueado</span>
+                                <?php elseif (!empty($estudiante['id_usuario'])): ?>
+                                    <span class="estado-activo">Cuenta activada</span>
+                                <?php else: ?>
+                                    <span class="estado-pendiente">Pendiente</span>
+                                <?php endif; ?>
+                            </td>
                             <td>
                                 <?php if ((int)$estudiante['estado'] === 1): ?>
                                     <span class="estado-activo">Activo</span>
@@ -100,28 +100,70 @@
             <?= csrf_field() ?>
 
             <div class="grupo">
-                <label>Nombres</label>
-                <input type="text" name="nombres" required>
+                <label for="nombres">Nombres</label>
+                <input type="text"
+                       name="nombres"
+                       id="nombres"
+                       placeholder="Ingrese los nombres"
+                       required
+                       minlength="2"
+                       maxlength="50"
+                       pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
+                       title="Solo se permiten letras y espacios"
+                       value="<?= esc(old('nombres')) ?>">
             </div>
 
             <div class="grupo">
-                <label>Apellidos</label>
-                <input type="text" name="apellidos" required>
+                <label for="apellidos">Apellidos</label>
+                <input type="text"
+                       name="apellidos"
+                       id="apellidos"
+                       placeholder="Ingrese los apellidos"
+                       required
+                       minlength="2"
+                       maxlength="50"
+                       pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
+                       title="Solo se permiten letras y espacios"
+                       value="<?= esc(old('apellidos')) ?>">
             </div>
 
             <div class="grupo">
-                <label>Teléfono</label>
-                <input type="text" name="telefono">
+                <label for="telefono">Teléfono</label>
+                <input type="text"
+                       name="telefono"
+                       id="telefono"
+                       placeholder="Ingrese el teléfono"
+                       required
+                       minlength="7"
+                       maxlength="15"
+                       pattern="[0-9]+"
+                       title="Solo se permiten números"
+                       value="<?= esc(old('telefono')) ?>">
             </div>
 
             <div class="grupo">
-                <label>Correo</label>
-                <input type="email" name="correo" required>
+                <label for="correo">Correo</label>
+                <input type="email"
+                       name="correo"
+                       id="correo"
+                       placeholder="Ingrese el correo electrónico"
+                       required
+                       maxlength="100"
+                       value="<?= esc(old('correo')) ?>">
             </div>
 
             <div class="grupo">
-                <label>Dirección</label>
-                <input type="text" name="direccion">
+                <label for="direccion">Dirección</label>
+                <input type="text"
+                       name="direccion"
+                       id="direccion"
+                       placeholder="Ingrese la dirección"
+                       required
+                       minlength="3"
+                       maxlength="150"
+                       pattern="[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ .,#-]+"
+                       title="Solo se permiten letras, números, espacios, punto, coma, numeral y guion"
+                       value="<?= esc(old('direccion')) ?>">
             </div>
 
             <button type="submit" class="btn btn-guardar">Guardar</button>
@@ -141,57 +183,99 @@
                     <?= csrf_field() ?>
 
                     <div class="grupo">
-                        <label>Nombres</label>
-                        <input type="text" name="nombres" value="<?= esc($estudiante['nombres']) ?>" required>
+                        <label for="nombres_<?= $estudiante['id_estudiante'] ?>">Nombres</label>
+                        <input type="text"
+                               name="nombres"
+                               id="nombres_<?= $estudiante['id_estudiante'] ?>"
+                               value="<?= esc($estudiante['nombres']) ?>"
+                               placeholder="Ingrese los nombres"
+                               required
+                               minlength="2"
+                               maxlength="50"
+                               pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
+                               title="Solo se permiten letras y espacios">
                     </div>
 
                     <div class="grupo">
-                        <label>Apellidos</label>
-                        <input type="text" name="apellidos" value="<?= esc($estudiante['apellidos']) ?>" required>
+                        <label for="apellidos_<?= $estudiante['id_estudiante'] ?>">Apellidos</label>
+                        <input type="text"
+                               name="apellidos"
+                               id="apellidos_<?= $estudiante['id_estudiante'] ?>"
+                               value="<?= esc($estudiante['apellidos']) ?>"
+                               placeholder="Ingrese los apellidos"
+                               required
+                               minlength="2"
+                               maxlength="50"
+                               pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
+                               title="Solo se permiten letras y espacios">
                     </div>
 
                     <div class="grupo">
-                        <label>Teléfono</label>
-                        <input type="text" name="telefono" value="<?= esc($estudiante['telefono']) ?>">
+                        <label for="telefono_<?= $estudiante['id_estudiante'] ?>">Teléfono</label>
+                        <input type="text"
+                               name="telefono"
+                               id="telefono_<?= $estudiante['id_estudiante'] ?>"
+                               value="<?= esc($estudiante['telefono']) ?>"
+                               placeholder="Ingrese el teléfono"
+                               required
+                               minlength="7"
+                               maxlength="15"
+                               pattern="[0-9]+"
+                               title="Solo se permiten números">
                     </div>
 
                     <div class="grupo">
-                        <label>Correo</label>
-                        <input type="email" name="correo" value="<?= esc($estudiante['correo']) ?>" required>
+                        <label for="correo_<?= $estudiante['id_estudiante'] ?>">Correo</label>
+                        <input type="email"
+                               name="correo"
+                               id="correo_<?= $estudiante['id_estudiante'] ?>"
+                               value="<?= esc($estudiante['correo']) ?>"
+                               placeholder="Ingrese el correo electrónico"
+                               required
+                               maxlength="100">
                     </div>
 
                     <div class="grupo">
-                        <label>Dirección</label>
-                        <input type="text" name="direccion" value="<?= esc($estudiante['direccion']) ?>">
+                        <label for="direccion_<?= $estudiante['id_estudiante'] ?>">Dirección</label>
+                        <input type="text"
+                               name="direccion"
+                               id="direccion_<?= $estudiante['id_estudiante'] ?>"
+                               value="<?= esc($estudiante['direccion']) ?>"
+                               placeholder="Ingrese la dirección"
+                               required
+                               minlength="3"
+                               maxlength="150"
+                               pattern="[A-Za-z0-9ÁÉÍÓÚáéíóúÑñ .,#-]+"
+                               title="Solo se permiten letras, números, espacios, punto, coma, numeral y guion">
                     </div>
 
                     <div class="grupo">
-    <label>Estado de la cuenta</label>
+                        <label>Estado de la cuenta</label>
 
-    <?php if ((int)$estudiante['bloqueado_activacion'] === 1): ?>
-        <input type="text" value="Bloqueado por intentos fallidos" disabled>
+                        <?php if ((int)$estudiante['bloqueado_activacion'] === 1): ?>
+                            <input type="text" value="Bloqueado por intentos fallidos" disabled>
+                            <input type="hidden" name="bloqueado_actual" value="1">
 
-        <input type="hidden" name="bloqueado_actual" value="1">
+                            <div class="grupo-desbloqueo">
+                                <input type="checkbox"
+                                       id="desbloquear_<?= $estudiante['id_estudiante'] ?>"
+                                       name="bloqueado_activacion"
+                                       value="1">
 
-        <div class="grupo-desbloqueo">
-    <input type="checkbox" id="desbloquear_<?= $estudiante['id_estudiante'] ?>"
-           name="bloqueado_activacion"
-           value="1">
+                                <label for="desbloquear_<?= $estudiante['id_estudiante'] ?>">
+                                    Desbloquear activación de cuenta
+                                </label>
+                            </div>
 
-    <label for="desbloquear_<?= $estudiante['id_estudiante'] ?>">
-        Desbloquear activación de cuenta
-    </label>
-</div>
+                        <?php elseif (!empty($estudiante['id_usuario'])): ?>
+                            <input type="text" value="Cuenta activada en el sistema" disabled>
+                            <input type="hidden" name="bloqueado_actual" value="0">
 
-    <?php elseif (!empty($estudiante['id_usuario'])): ?>
-        <input type="text" value="Cuenta activada en el sistema" disabled>
-        <input type="hidden" name="bloqueado_actual" value="0">
-
-    <?php else: ?>
-        <input type="text" value="Pendiente de activación por el usuario" disabled>
-        <input type="hidden" name="bloqueado_actual" value="0">
-    <?php endif; ?>
-</div>
+                        <?php else: ?>
+                            <input type="text" value="Pendiente de activación por el usuario" disabled>
+                            <input type="hidden" name="bloqueado_actual" value="0">
+                        <?php endif; ?>
+                    </div>
 
                     <div class="grupo">
                         <label>Estado actual</label>
