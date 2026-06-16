@@ -130,20 +130,22 @@
                 <label>Destinatarios</label>
 
                 <div class="checkbox-destino">
+                    <label for="rol_todos"><strong>TODOS</strong></label>
                     <input type="checkbox"
                            name="roles_destino[]"
                            value="TODOS"
                            id="rol_todos">
-                    <label for="rol_todos"><strong>TODOS</strong></label>
                 </div>
 
                 <?php foreach ($roles as $rol): ?>
                     <div class="checkbox-destino">
+                        <label for="rol_<?= $rol['id_rol'] ?>">
+                            <?= esc($rol['nombre_rol']) ?>
+                        </label>
                         <input type="checkbox"
                                name="roles_destino[]"
                                value="<?= $rol['id_rol'] ?>"
                                id="rol_<?= $rol['id_rol'] ?>">
-                        <label for="rol_<?= $rol['id_rol'] ?>"><?= esc($rol['nombre_rol']) ?></label>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -215,26 +217,26 @@
                         <label>Destinatarios</label>
 
                         <div class="checkbox-destino">
+                            <label for="edit_rol_todos_<?= $comunicado['id_comunicado'] ?>">
+                                <strong>TODOS</strong>
+                            </label>
                             <input type="checkbox"
                                    name="roles_destino[]"
                                    value="TODOS"
                                    id="edit_rol_todos_<?= $comunicado['id_comunicado'] ?>"
                                    <?= $todosSeleccionados ? 'checked' : '' ?>>
-                            <label for="edit_rol_todos_<?= $comunicado['id_comunicado'] ?>">
-                                <strong>TODOS</strong>
-                            </label>
                         </div>
 
                         <?php foreach ($roles as $rol): ?>
                             <div class="checkbox-destino">
+                                <label for="edit_rol_<?= $comunicado['id_comunicado'] ?>_<?= $rol['id_rol'] ?>">
+                                    <?= esc($rol['nombre_rol']) ?>
+                                </label>
                                 <input type="checkbox"
                                        name="roles_destino[]"
                                        value="<?= $rol['id_rol'] ?>"
                                        id="edit_rol_<?= $comunicado['id_comunicado'] ?>_<?= $rol['id_rol'] ?>"
                                        <?= in_array($rol['id_rol'], $comunicado['roles_destino']) ? 'checked' : '' ?>>
-                                <label for="edit_rol_<?= $comunicado['id_comunicado'] ?>_<?= $rol['id_rol'] ?>">
-                                    <?= esc($rol['nombre_rol']) ?>
-                                </label>
                             </div>
                         <?php endforeach; ?>
                     </div>
