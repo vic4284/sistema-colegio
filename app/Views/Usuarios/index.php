@@ -16,8 +16,6 @@
     <?php endif; ?>
 
     <div class="tabla-responsive">
-
-    
         <table>
             <thead>
                 <tr>
@@ -41,13 +39,12 @@
                             <td>
                                 <?php if (!empty($usuario['imagen'])): ?>
                                     <img src="<?= base_url('assets/img/usuarios/' . $usuario['imagen']) ?>"
-                                        alt="Imagen de usuario"
-                                        class="imagen-usuario-tabla">
+                                         alt="Imagen de usuario"
+                                         class="imagen-usuario-tabla">
                                 <?php else: ?>
                                     <span class="sin-imagen">Sin imagen</span>
                                 <?php endif; ?>
                             </td>
-
 
                             <td><?= esc($usuario['nombre_usuario']) ?></td>
                             <td><?= esc($usuario['correo_electronico']) ?></td>
@@ -111,7 +108,10 @@
                                name="nombre_usuario"
                                id="nombre_usuario_<?= $usuario['id_usuario'] ?>"
                                value="<?= esc($usuario['nombre_usuario']) ?>"
-                               placeholder="Ingrese el nombre de usuario">
+                               placeholder="Ingrese el nombre de usuario"
+                               required
+                               minlength="3"
+                               maxlength="50">
                     </div>
 
                     <div class="grupo">
@@ -120,10 +120,10 @@
                                name="correo_electronico"
                                id="correo_electronico_<?= $usuario['id_usuario'] ?>"
                                value="<?= esc($usuario['correo_electronico']) ?>"
-                               placeholder="Ingrese el correo electrónico">
+                               placeholder="Ingrese el correo electrónico"
+                               required
+                               maxlength="100">
                     </div>
-
-
 
                     <div class="grupo">
                         <label>Imagen actual</label>
@@ -138,19 +138,13 @@
                         </div>
                     </div>
 
-<div class="grupo">
-    <label for="imagen_<?= $usuario['id_usuario'] ?>">Cambiar imagen (opcional)</label>
-    <input type="file"
-           name="imagen"
-           id="imagen_<?= $usuario['id_usuario'] ?>"
-           accept="image/png, image/jpeg, image/jpg">
-</div>
-
-
-
-
-
-
+                    <div class="grupo">
+                        <label for="imagen_<?= $usuario['id_usuario'] ?>">Cambiar imagen (opcional)</label>
+                        <input type="file"
+                               name="imagen"
+                               id="imagen_<?= $usuario['id_usuario'] ?>"
+                               accept="image/png, image/jpeg, image/jpg, image/webp">
+                    </div>
 
                     <div class="grupo">
                         <label>Rol</label>
