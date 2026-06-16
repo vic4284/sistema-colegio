@@ -47,7 +47,7 @@
                             <td><?= esc($administrativo['cargo']) ?></td>
                             <td>
                                 <?php if ((int)$administrativo['bloqueado_activacion'] === 1): ?>
-                                 <span class="estado-inactivo">Bloqueado</span>
+                                    <span class="estado-inactivo">Bloqueado</span>
                                 <?php elseif (!empty($administrativo['id_usuario'])): ?>
                                     <span class="estado-activo">Cuenta activada</span>
                                 <?php else: ?>
@@ -100,28 +100,63 @@
             <?= csrf_field() ?>
 
             <div class="grupo">
-                <label>Nombres</label>
-                <input type="text" name="nombres" required>
+                <label for="nombres">Nombres</label>
+                <input type="text"
+                       name="nombres"
+                       id="nombres"
+                       placeholder="Ingrese los nombres"
+                       required
+                       minlength="2"
+                       maxlength="50"
+                       value="<?= esc(old('nombres')) ?>">
             </div>
 
             <div class="grupo">
-                <label>Apellidos</label>
-                <input type="text" name="apellidos" required>
+                <label for="apellidos">Apellidos</label>
+                <input type="text"
+                       name="apellidos"
+                       id="apellidos"
+                       placeholder="Ingrese los apellidos"
+                       required
+                       minlength="2"
+                       maxlength="50"
+                       value="<?= esc(old('apellidos')) ?>">
             </div>
 
             <div class="grupo">
-                <label>Teléfono</label>
-                <input type="text" name="telefono">
+                <label for="telefono">Teléfono</label>
+                <input type="text"
+                       name="telefono"
+                       id="telefono"
+                       placeholder="Ingrese el teléfono"
+                       required
+                       minlength="7"
+                       maxlength="15"
+                       pattern="[0-9]+"
+                       value="<?= esc(old('telefono')) ?>">
             </div>
 
             <div class="grupo">
-                <label>Correo</label>
-                <input type="email" name="correo" required>
+                <label for="correo">Correo</label>
+                <input type="email"
+                       name="correo"
+                       id="correo"
+                       placeholder="Ingrese el correo electrónico"
+                       required
+                       maxlength="100"
+                       value="<?= esc(old('correo')) ?>">
             </div>
 
             <div class="grupo">
-                <label>Cargo</label>
-                <input type="text" name="cargo">
+                <label for="cargo">Cargo</label>
+                <input type="text"
+                       name="cargo"
+                       id="cargo"
+                       placeholder="Ingrese el cargo"
+                       required
+                       minlength="3"
+                       maxlength="80"
+                       value="<?= esc(old('cargo')) ?>">
             </div>
 
             <button type="submit" class="btn btn-guardar">Guardar</button>
@@ -141,57 +176,92 @@
                     <?= csrf_field() ?>
 
                     <div class="grupo">
-                        <label>Nombres</label>
-                        <input type="text" name="nombres" value="<?= esc($administrativo['nombres']) ?>" required>
+                        <label for="nombres_<?= $administrativo['id_administrativo'] ?>">Nombres</label>
+                        <input type="text"
+                               name="nombres"
+                               id="nombres_<?= $administrativo['id_administrativo'] ?>"
+                               value="<?= esc($administrativo['nombres']) ?>"
+                               placeholder="Ingrese los nombres"
+                               required
+                               minlength="2"
+                               maxlength="50">
                     </div>
 
                     <div class="grupo">
-                        <label>Apellidos</label>
-                        <input type="text" name="apellidos" value="<?= esc($administrativo['apellidos']) ?>" required>
+                        <label for="apellidos_<?= $administrativo['id_administrativo'] ?>">Apellidos</label>
+                        <input type="text"
+                               name="apellidos"
+                               id="apellidos_<?= $administrativo['id_administrativo'] ?>"
+                               value="<?= esc($administrativo['apellidos']) ?>"
+                               placeholder="Ingrese los apellidos"
+                               required
+                               minlength="2"
+                               maxlength="50">
                     </div>
 
                     <div class="grupo">
-                        <label>Teléfono</label>
-                        <input type="text" name="telefono" value="<?= esc($administrativo['telefono']) ?>">
+                        <label for="telefono_<?= $administrativo['id_administrativo'] ?>">Teléfono</label>
+                        <input type="text"
+                               name="telefono"
+                               id="telefono_<?= $administrativo['id_administrativo'] ?>"
+                               value="<?= esc($administrativo['telefono']) ?>"
+                               placeholder="Ingrese el teléfono"
+                               required
+                               minlength="7"
+                               maxlength="15"
+                               pattern="[0-9]+">
                     </div>
 
                     <div class="grupo">
-                        <label>Correo</label>
-                        <input type="email" name="correo" value="<?= esc($administrativo['correo']) ?>" required>
+                        <label for="correo_<?= $administrativo['id_administrativo'] ?>">Correo</label>
+                        <input type="email"
+                               name="correo"
+                               id="correo_<?= $administrativo['id_administrativo'] ?>"
+                               value="<?= esc($administrativo['correo']) ?>"
+                               placeholder="Ingrese el correo electrónico"
+                               required
+                               maxlength="100">
                     </div>
 
                     <div class="grupo">
-                        <label>Cargo</label>
-                        <input type="text" name="cargo" value="<?= esc($administrativo['cargo']) ?>">
+                        <label for="cargo_<?= $administrativo['id_administrativo'] ?>">Cargo</label>
+                        <input type="text"
+                               name="cargo"
+                               id="cargo_<?= $administrativo['id_administrativo'] ?>"
+                               value="<?= esc($administrativo['cargo']) ?>"
+                               placeholder="Ingrese el cargo"
+                               required
+                               minlength="3"
+                               maxlength="80">
                     </div>
 
                     <div class="grupo">
-    <label>Estado de la cuenta</label>
+                        <label>Estado de la cuenta</label>
 
-    <?php if ((int)$administrativo['bloqueado_activacion'] === 1): ?>
-        <input type="text" value="Bloqueado por intentos fallidos" disabled>
+                        <?php if ((int)$administrativo['bloqueado_activacion'] === 1): ?>
+                            <input type="text" value="Bloqueado por intentos fallidos" disabled>
+                            <input type="hidden" name="bloqueado_actual" value="1">
 
-        <input type="hidden" name="bloqueado_actual" value="1">
+                            <div class="grupo-desbloqueo">
+                                <input type="checkbox"
+                                       id="desbloquear_<?= $administrativo['id_administrativo'] ?>"
+                                       name="bloqueado_activacion"
+                                       value="1">
 
-        <div class="grupo-desbloqueo">
-    <input type="checkbox" id="desbloquear_<?= $administrativo['id_administrativo'] ?>"
-           name="bloqueado_activacion"
-           value="1">
+                                <label for="desbloquear_<?= $administrativo['id_administrativo'] ?>">
+                                    Desbloquear activación de cuenta
+                                </label>
+                            </div>
 
-    <label for="desbloquear_<?= $administrativo['id_administrativo'] ?>">
-        Desbloquear activación de cuenta
-    </label>
-</div>
+                        <?php elseif (!empty($administrativo['id_usuario'])): ?>
+                            <input type="text" value="Cuenta activada en el sistema" disabled>
+                            <input type="hidden" name="bloqueado_actual" value="0">
 
-    <?php elseif (!empty($administrativo['id_usuario'])): ?>
-        <input type="text" value="Cuenta activada en el sistema" disabled>
-        <input type="hidden" name="bloqueado_actual" value="0">
-
-    <?php else: ?>
-        <input type="text" value="Pendiente de activación por el usuario" disabled>
-        <input type="hidden" name="bloqueado_actual" value="0">
-    <?php endif; ?>
-</div>
+                        <?php else: ?>
+                            <input type="text" value="Pendiente de activación por el usuario" disabled>
+                            <input type="hidden" name="bloqueado_actual" value="0">
+                        <?php endif; ?>
+                    </div>
 
                     <div class="grupo">
                         <label>Estado actual</label>
