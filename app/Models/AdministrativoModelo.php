@@ -21,42 +21,21 @@ class AdministrativoModelo extends Model
         'bloqueado_activacion'
     ];
 
-    public function cambiarEstadoAdministrativoYUsuario($idAdministrativo, $estado)
-{
-    $administrativo = $this->find($idAdministrativo);
-
-    if (!$administrativo) {
-        return false;
+    public function listarAdministrativos()
+    {
+        return $this->orderBy('id_administrativo', 'DESC')
+                    ->findAll();
     }
 
-    $this->update($idAdministrativo, [
-        'estado' => $estado
-    ]);
+    public function buscarAdministrativos($buscar)
+    {
+        $buscar = trim($buscar);
+        $buscarMinuscula = strtolower($buscar);
 
-    if (!empty($administrativo['id_usuario'])) {
-        $db = \Config\Database::connect();
+        $builder = $this->builder();
 
-        $db->table('usuarios')
-           ->where('id_usuario', $administrativo['id_usuario'])
-           ->update([
-               'estado' => $estado
-           ]);
-    }
+        $builder->groupStart();
 
-    return true;
-}
-
-
-public function buscarAdministrativos($buscar)
-{
-    $buscar = trim($buscar);
-    $buscarMinuscula = strtolower($buscar);
-
-    $builder = $this->builder();
-
-    $builder->groupStart();
-
-        // Si escribe número corto, se busca SOLO por ID
         if (is_numeric($buscar) && strlen($buscar) <= 3) {
             $builder->where('id_administrativo', $buscar);
         } else {
@@ -68,7 +47,6 @@ public function buscarAdministrativos($buscar)
                     ->orLike('fecha_creacion', $buscar);
         }
 
-        // Usuario vinculado
         if (
             strpos('bloqueado', $buscarMinuscula) !== false ||
             strpos('bloq', $buscarMinuscula) !== false
@@ -83,57 +61,76 @@ public function buscarAdministrativos($buscar)
             $builder->orWhere('bloqueado_activacion', 0);
         }
 
-        // Estado y acciones
         if (
-    $buscarMinuscula === 'inactivo' ||
-    $buscarMinuscula === 'inact' ||
-    $buscarMinuscula === 'inacti' ||
-    $buscarMinuscula === 'activar'
-) {
-    $builder->orWhere('estado', 0);
-} elseif (
-    $buscarMinuscula === 'activo' ||
-    $buscarMinuscula === 'activ' ||
-    $buscarMinuscula === 'desactivar' ||
-    $buscarMinuscula === 'desact'
-) {
-    $builder->orWhere('estado', 1);
-}
+            $buscarMinuscula === 'inactivo' ||
+            $buscarMinuscula === 'inact' ||
+            $buscarMinuscula === 'inacti' ||
+            $buscarMinuscula === 'activar'
+        ) {
+            $builder->orWhere('estado', 0);
+        } elseif (
+            $buscarMinuscula === 'activo' ||
+            $buscarMinuscula === 'activ' ||
+            $buscarMinuscula === 'desactivar' ||
+            $buscarMinuscula === 'desact'
+        ) {
+            $builder->orWhere('estado', 1);
+        }
 
         if (strpos('editar', $buscarMinuscula) !== false) {
             $builder->orWhere('id_administrativo IS NOT NULL');
         }
 
-    $builder->groupEnd();
+        $builder->groupEnd();
 
-    return $builder->orderBy('id_administrativo', 'DESC')
-                   ->get()
-                   ->getResultArray();
-}
-
-
-
-public function existeCorreo($correo, $idAdministrativo = null)
-{
-    $builder = $this->where('correo', $correo);
-
-    if ($idAdministrativo !== null) {
-        $builder->where('id_administrativo !=', $idAdministrativo);
+        return $builder->orderBy('id_administrativo', 'DESC')
+                       ->get()
+                       ->getResultArray();
     }
 
-    return $builder->first();
-}
+    public function existeCorreo($correo, $idAdministrativo = null)
+    {
+        $builder = $this->where('correo', $correo);
 
-public function existeNombreCompleto($nombres, $apellidos, $idAdministrativo = null)
-{
-    $builder = $this->where('nombres', $nombres)
-                    ->where('apellidos', $apellidos);
+        if ($idAdministrativo !== null) {
+            $builder->where('id_administrativo !=', $idAdministrativo);
+        }
 
-    if ($idAdministrativo !== null) {
-        $builder->where('id_administrativo !=', $idAdministrativo);
+        return $builder->first();
     }
 
-    return $builder->first();
-}
-}
+    public function existeNombreCompleto($nombres, $apellidos, $idAdministrativo = null)
+    {
+        $builder = $this->where('nombres', $nombres)
+                        ->where('apellidos', $apellidos);
 
+        if ($idAdministrativo !== null) {
+            $builder->where('id_administrativo !=', $idAdministrativo);
+        }
+
+        return $builder->first();
+    }
+
+    public function cambiarEstadoAdministrativoYUsuario($idAdministrativo, $estado)
+    {
+        $administrativo = $this->find($idAdministrativo);
+
+        if (!$administrativo) {
+            return false;
+        }
+
+        $this->update($idAdministrativo, [
+            'estado' => $estado
+        ]);
+
+        if (!empty($administrativo['id_usuario'])) {
+            $this->db->table('usuarios')
+                ->where('id_usuario', $administrativo['id_usuario'])
+                ->update([
+                    'estado' => $estado
+                ]);
+        }
+
+        return true;
+    }
+}

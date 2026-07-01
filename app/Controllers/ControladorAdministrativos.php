@@ -7,9 +7,40 @@ use App\Models\AdministrativoModelo;
 
 class ControladorAdministrativos extends BaseController
 {
+    protected $administrativoModelo;
+
+    public function __construct()
+    {
+        $this->administrativoModelo = new AdministrativoModelo();
+    }
+
     private function esAdministrativo()
     {
         return session()->get('logueado') && session()->get('rol') === 'ADMINISTRATIVO';
+    }
+
+    private function validarAccesoModulo()
+    {
+        if (!session()->get('logueado')) {
+            return redirect()->to(base_url('/login'));
+        }
+
+        if (!$this->esAdministrativo()) {
+            return redirect()->to(base_url('/dashboard'))
+                ->with('error', 'No tiene permisos para acceder a este módulo.');
+        }
+
+        return null;
+    }
+
+    private function validarAccionAdministrativo()
+    {
+        if (!$this->esAdministrativo()) {
+            return redirect()->to(base_url('/dashboard'))
+                ->with('error', 'No tiene permisos para realizar esta acción.');
+        }
+
+        return null;
     }
 
     private function validarDatosAdministrativo($nombres, $apellidos, $telefono, $correo, $cargo)
@@ -66,7 +97,6 @@ class ControladorAdministrativos extends BaseController
             return 'El correo no debe superar los 100 caracteres.';
         }
 
-
         if (mb_strlen($cargo) > 80) {
             return 'El cargo no debe superar los 80 caracteres.';
         }
@@ -74,18 +104,24 @@ class ControladorAdministrativos extends BaseController
         return null;
     }
 
+    private function obtenerDatosFormulario()
+    {
+        return [
+            'nombres'   => trim($this->request->getPost('nombres') ?? ''),
+            'apellidos' => trim($this->request->getPost('apellidos') ?? ''),
+            'telefono'  => trim($this->request->getPost('telefono') ?? ''),
+            'correo'    => trim($this->request->getPost('correo') ?? ''),
+            'cargo'     => trim($this->request->getPost('cargo') ?? '')
+        ];
+    }
+
     public function index()
     {
-        if (!session()->get('logueado')) {
-            return redirect()->to(base_url('/login'));
-        }
+        $acceso = $this->validarAccesoModulo();
 
-        if (!$this->esAdministrativo()) {
-            return redirect()->to(base_url('/dashboard'))
-                ->with('error', 'No tiene permisos para acceder a este módulo.');
+        if ($acceso !== null) {
+            return $acceso;
         }
-
-        $modelo = new AdministrativoModelo();
 
         $buscar = trim($this->request->getGet('buscar') ?? '');
 
@@ -94,9 +130,9 @@ class ControladorAdministrativos extends BaseController
         }
 
         if ($buscar !== '') {
-            $administrativos = $modelo->buscarAdministrativos($buscar);
+            $administrativos = $this->administrativoModelo->buscarAdministrativos($buscar);
         } else {
-            $administrativos = $modelo->findAll();
+            $administrativos = $this->administrativoModelo->listarAdministrativos();
         }
 
         return view('administrativos/index', [
@@ -106,20 +142,21 @@ class ControladorAdministrativos extends BaseController
 
     public function insertar()
     {
-        if (!$this->esAdministrativo()) {
-            return redirect()->to(base_url('/dashboard'))
-                ->with('error', 'No tiene permisos para realizar esta acción.');
+        $acceso = $this->validarAccionAdministrativo();
+
+        if ($acceso !== null) {
+            return $acceso;
         }
 
-        $modelo = new AdministrativoModelo();
+        $datos = $this->obtenerDatosFormulario();
 
-        $nombres   = trim($this->request->getPost('nombres') ?? '');
-        $apellidos = trim($this->request->getPost('apellidos') ?? '');
-        $telefono  = trim($this->request->getPost('telefono') ?? '');
-        $correo    = trim($this->request->getPost('correo') ?? '');
-        $cargo     = trim($this->request->getPost('cargo') ?? '');
-
-        $error = $this->validarDatosAdministrativo($nombres, $apellidos, $telefono, $correo, $cargo);
+        $error = $this->validarDatosAdministrativo(
+            $datos['nombres'],
+            $datos['apellidos'],
+            $datos['telefono'],
+            $datos['correo'],
+            $datos['cargo']
+        );
 
         if ($error !== null) {
             return redirect()->to(base_url('/administrativos'))
@@ -127,25 +164,25 @@ class ControladorAdministrativos extends BaseController
                 ->withInput();
         }
 
-        if ($modelo->existeCorreo($correo)) {
+        if ($this->administrativoModelo->existeCorreo($datos['correo'])) {
             return redirect()->to(base_url('/administrativos'))
                 ->with('error', 'Ya existe un administrativo registrado con ese correo.')
                 ->withInput();
         }
 
-        if ($modelo->existeNombreCompleto($nombres, $apellidos)) {
+        if ($this->administrativoModelo->existeNombreCompleto($datos['nombres'], $datos['apellidos'])) {
             return redirect()->to(base_url('/administrativos'))
                 ->with('error', 'Ya existe un administrativo registrado con ese nombre completo.')
                 ->withInput();
         }
 
-        $modelo->insert([
+        $this->administrativoModelo->insert([
             'id_usuario' => null,
-            'nombres'    => $nombres,
-            'apellidos'  => $apellidos,
-            'telefono'   => $telefono,
-            'correo'     => $correo,
-            'cargo'      => $cargo,
+            'nombres'    => $datos['nombres'],
+            'apellidos'  => $datos['apellidos'],
+            'telefono'   => $datos['telefono'],
+            'correo'     => $datos['correo'],
+            'cargo'      => $datos['cargo'],
             'estado'     => 1
         ]);
 
@@ -155,9 +192,10 @@ class ControladorAdministrativos extends BaseController
 
     public function actualizar($id = null)
     {
-        if (!$this->esAdministrativo()) {
-            return redirect()->to(base_url('/dashboard'))
-                ->with('error', 'No tiene permisos para realizar esta acción.');
+        $acceso = $this->validarAccionAdministrativo();
+
+        if ($acceso !== null) {
+            return $acceso;
         }
 
         if ($id === null || !is_numeric($id)) {
@@ -165,21 +203,22 @@ class ControladorAdministrativos extends BaseController
                 ->with('error', 'ID de administrativo no válido.');
         }
 
-        $modelo = new AdministrativoModelo();
-        $administrativo = $modelo->find($id);
+        $administrativo = $this->administrativoModelo->find($id);
 
         if (!$administrativo) {
             return redirect()->to(base_url('/administrativos'))
                 ->with('error', 'Administrativo no encontrado.');
         }
 
-        $nombres   = trim($this->request->getPost('nombres') ?? '');
-        $apellidos = trim($this->request->getPost('apellidos') ?? '');
-        $telefono  = trim($this->request->getPost('telefono') ?? '');
-        $correo    = trim($this->request->getPost('correo') ?? '');
-        $cargo     = trim($this->request->getPost('cargo') ?? '');
+        $datos = $this->obtenerDatosFormulario();
 
-        $error = $this->validarDatosAdministrativo($nombres, $apellidos, $telefono, $correo, $cargo);
+        $error = $this->validarDatosAdministrativo(
+            $datos['nombres'],
+            $datos['apellidos'],
+            $datos['telefono'],
+            $datos['correo'],
+            $datos['cargo']
+        );
 
         if ($error !== null) {
             return redirect()->to(base_url('/administrativos'))
@@ -187,25 +226,25 @@ class ControladorAdministrativos extends BaseController
                 ->withInput();
         }
 
-        if ($modelo->existeCorreo($correo, $id)) {
+        if ($this->administrativoModelo->existeCorreo($datos['correo'], $id)) {
             return redirect()->to(base_url('/administrativos'))
                 ->with('error', 'Ya existe otro administrativo registrado con ese correo.')
                 ->withInput();
         }
 
-        if ($modelo->existeNombreCompleto($nombres, $apellidos, $id)) {
+        if ($this->administrativoModelo->existeNombreCompleto($datos['nombres'], $datos['apellidos'], $id)) {
             return redirect()->to(base_url('/administrativos'))
                 ->with('error', 'Ya existe otro administrativo registrado con ese nombre completo.')
                 ->withInput();
         }
 
-        $modelo->update($id, [
-            'nombres'               => $nombres,
-            'apellidos'             => $apellidos,
-            'telefono'              => $telefono,
-            'correo'                => $correo,
-            'cargo'                 => $cargo,
-            'bloqueado_activacion'  => $this->request->getPost('bloqueado_activacion') ? 0 : $this->request->getPost('bloqueado_actual')
+        $this->administrativoModelo->update($id, [
+            'nombres'              => $datos['nombres'],
+            'apellidos'            => $datos['apellidos'],
+            'telefono'             => $datos['telefono'],
+            'correo'               => $datos['correo'],
+            'cargo'                => $datos['cargo'],
+            'bloqueado_activacion' => $this->request->getPost('bloqueado_activacion') ? 0 : $this->request->getPost('bloqueado_actual')
         ]);
 
         return redirect()->to(base_url('/administrativos'))
@@ -224,9 +263,10 @@ class ControladorAdministrativos extends BaseController
 
     private function cambiarEstado($id, $estado, $texto)
     {
-        if (!$this->esAdministrativo()) {
-            return redirect()->to(base_url('/dashboard'))
-                ->with('error', 'No tiene permisos para realizar esta acción.');
+        $acceso = $this->validarAccionAdministrativo();
+
+        if ($acceso !== null) {
+            return $acceso;
         }
 
         if ($id === null || !is_numeric($id)) {
@@ -234,9 +274,7 @@ class ControladorAdministrativos extends BaseController
                 ->with('error', 'ID de administrativo no válido.');
         }
 
-        $modelo = new AdministrativoModelo();
-
-        $actualizado = $modelo->cambiarEstadoAdministrativoYUsuario($id, $estado);
+        $actualizado = $this->administrativoModelo->cambiarEstadoAdministrativoYUsuario($id, $estado);
 
         if (!$actualizado) {
             return redirect()->to(base_url('/administrativos'))
