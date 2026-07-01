@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class AdministrativoModelo extends Model
 {
-    protected $table = 'administrativos';
+      protected $table = 'administrativos';
     protected $primaryKey = 'id_administrativo';
     protected $returnType = 'array';
 
@@ -21,18 +21,14 @@ class AdministrativoModelo extends Model
         'bloqueado_activacion'
     ];
 
-    public function listarAdministrativos()
-    {
-        return $this->orderBy('id_administrativo', 'DESC')
-                    ->findAll();
-    }
-
-    public function buscarAdministrativos($buscar)
+    private function aplicarBusqueda($builder, $buscar)
     {
         $buscar = trim($buscar);
         $buscarMinuscula = strtolower($buscar);
 
-        $builder = $this->builder();
+        if ($buscar === '') {
+            return $builder;
+        }
 
         $builder->groupStart();
 
@@ -83,9 +79,42 @@ class AdministrativoModelo extends Model
 
         $builder->groupEnd();
 
+        return $builder;
+    }
+
+    public function listarAdministrativos()
+    {
+        return $this->orderBy('id_administrativo', 'DESC')
+                    ->findAll();
+    }
+
+    public function buscarAdministrativos($buscar)
+    {
+        $builder = $this->builder();
+        $builder = $this->aplicarBusqueda($builder, $buscar);
+
         return $builder->orderBy('id_administrativo', 'DESC')
                        ->get()
                        ->getResultArray();
+    }
+
+    public function listarAdministrativosPaginado($buscar, $limite, $offset)
+    {
+        $builder = $this->builder();
+        $builder = $this->aplicarBusqueda($builder, $buscar);
+
+        return $builder->orderBy('id_administrativo', 'DESC')
+                       ->limit($limite, $offset)
+                       ->get()
+                       ->getResultArray();
+    }
+
+    public function contarAdministrativos($buscar)
+    {
+        $builder = $this->builder();
+        $builder = $this->aplicarBusqueda($builder, $buscar);
+
+        return $builder->countAllResults();
     }
 
     public function existeCorreo($correo, $idAdministrativo = null)
@@ -134,3 +163,4 @@ class AdministrativoModelo extends Model
         return true;
     }
 }
+

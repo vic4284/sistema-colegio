@@ -7,7 +7,7 @@ use App\Models\AdministrativoModelo;
 
 class ControladorAdministrativos extends BaseController
 {
-    protected $administrativoModelo;
+     protected $administrativoModelo;
 
     public function __construct()
     {
@@ -45,61 +45,24 @@ class ControladorAdministrativos extends BaseController
 
     private function validarDatosAdministrativo($nombres, $apellidos, $telefono, $correo, $cargo)
     {
-        if ($nombres === '') {
-            return 'Los nombres son obligatorios.';
-        }
+        if ($nombres === '') return 'Los nombres son obligatorios.';
+        if (mb_strlen($nombres) < 2) return 'Los nombres deben tener al menos 2 caracteres.';
+        if (mb_strlen($nombres) > 50) return 'Los nombres no deben superar los 50 caracteres.';
 
-        if (mb_strlen($nombres) < 2) {
-            return 'Los nombres deben tener al menos 2 caracteres.';
-        }
+        if ($apellidos === '') return 'Los apellidos son obligatorios.';
+        if (mb_strlen($apellidos) < 2) return 'Los apellidos deben tener al menos 2 caracteres.';
+        if (mb_strlen($apellidos) > 50) return 'Los apellidos no deben superar los 50 caracteres.';
 
-        if (mb_strlen($nombres) > 50) {
-            return 'Los nombres no deben superar los 50 caracteres.';
-        }
+        if ($telefono === '') return 'El teléfono es obligatorio.';
+        if (!preg_match('/^[0-9]+$/', $telefono)) return 'El teléfono solo debe contener números.';
+        if (mb_strlen($telefono) < 7) return 'El teléfono debe tener al menos 7 dígitos.';
+        if (mb_strlen($telefono) > 15) return 'El teléfono no debe superar los 15 dígitos.';
 
-        if ($apellidos === '') {
-            return 'Los apellidos son obligatorios.';
-        }
+        if ($correo === '') return 'El correo es obligatorio.';
+        if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) return 'Debe ingresar un correo válido.';
+        if (mb_strlen($correo) > 100) return 'El correo no debe superar los 100 caracteres.';
 
-        if (mb_strlen($apellidos) < 2) {
-            return 'Los apellidos deben tener al menos 2 caracteres.';
-        }
-
-        if (mb_strlen($apellidos) > 50) {
-            return 'Los apellidos no deben superar los 50 caracteres.';
-        }
-
-        if ($telefono === '') {
-            return 'El teléfono es obligatorio.';
-        }
-
-        if (!preg_match('/^[0-9]+$/', $telefono)) {
-            return 'El teléfono solo debe contener números.';
-        }
-
-        if (mb_strlen($telefono) < 7) {
-            return 'El teléfono debe tener al menos 7 dígitos.';
-        }
-
-        if (mb_strlen($telefono) > 15) {
-            return 'El teléfono no debe superar los 15 dígitos.';
-        }
-
-        if ($correo === '') {
-            return 'El correo es obligatorio.';
-        }
-
-        if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
-            return 'Debe ingresar un correo válido.';
-        }
-
-        if (mb_strlen($correo) > 100) {
-            return 'El correo no debe superar los 100 caracteres.';
-        }
-
-        if (mb_strlen($cargo) > 80) {
-            return 'El cargo no debe superar los 80 caracteres.';
-        }
+        if (mb_strlen($cargo) > 80) return 'El cargo no debe superar los 80 caracteres.';
 
         return null;
     }
@@ -129,14 +92,40 @@ class ControladorAdministrativos extends BaseController
             $buscar = mb_substr($buscar, 0, 80);
         }
 
-        if ($buscar !== '') {
-            $administrativos = $this->administrativoModelo->buscarAdministrativos($buscar);
-        } else {
-            $administrativos = $this->administrativoModelo->listarAdministrativos();
+        $porPagina = (int)($this->request->getGet('por_pagina') ?? 10);
+        $pagina = (int)($this->request->getGet('pagina') ?? 1);
+
+        if (!in_array($porPagina, [10, 25, 50, 100])) {
+            $porPagina = 10;
         }
 
+        if ($pagina < 1) {
+            $pagina = 1;
+        }
+
+        $totalRegistros = $this->administrativoModelo->contarAdministrativos($buscar);
+        $totalPaginas = (int)ceil($totalRegistros / $porPagina);
+
+        if ($totalPaginas > 0 && $pagina > $totalPaginas) {
+            $pagina = $totalPaginas;
+        }
+
+        $offset = ($pagina - 1) * $porPagina;
+
+        $administrativos = $this->administrativoModelo->listarAdministrativosPaginado($buscar, $porPagina, $offset);
+
+        $desde = $totalRegistros > 0 ? $offset + 1 : 0;
+        $hasta = min($offset + $porPagina, $totalRegistros);
+
         return view('administrativos/index', [
-            'administrativos' => $administrativos
+            'administrativos' => $administrativos,
+            'buscar' => $buscar,
+            'porPagina' => $porPagina,
+            'pagina' => $pagina,
+            'totalPaginas' => $totalPaginas,
+            'totalRegistros' => $totalRegistros,
+            'desde' => $desde,
+            'hasta' => $hasta
         ]);
     }
 
@@ -159,9 +148,7 @@ class ControladorAdministrativos extends BaseController
         );
 
         if ($error !== null) {
-            return redirect()->to(base_url('/administrativos'))
-                ->with('error', $error)
-                ->withInput();
+            return redirect()->to(base_url('/administrativos'))->with('error', $error)->withInput();
         }
 
         if ($this->administrativoModelo->existeCorreo($datos['correo'])) {
@@ -178,12 +165,12 @@ class ControladorAdministrativos extends BaseController
 
         $this->administrativoModelo->insert([
             'id_usuario' => null,
-            'nombres'    => $datos['nombres'],
-            'apellidos'  => $datos['apellidos'],
-            'telefono'   => $datos['telefono'],
-            'correo'     => $datos['correo'],
-            'cargo'      => $datos['cargo'],
-            'estado'     => 1
+            'nombres' => $datos['nombres'],
+            'apellidos' => $datos['apellidos'],
+            'telefono' => $datos['telefono'],
+            'correo' => $datos['correo'],
+            'cargo' => $datos['cargo'],
+            'estado' => 1
         ]);
 
         return redirect()->to(base_url('/administrativos'))
@@ -221,9 +208,7 @@ class ControladorAdministrativos extends BaseController
         );
 
         if ($error !== null) {
-            return redirect()->to(base_url('/administrativos'))
-                ->with('error', $error)
-                ->withInput();
+            return redirect()->to(base_url('/administrativos'))->with('error', $error)->withInput();
         }
 
         if ($this->administrativoModelo->existeCorreo($datos['correo'], $id)) {
@@ -239,11 +224,11 @@ class ControladorAdministrativos extends BaseController
         }
 
         $this->administrativoModelo->update($id, [
-            'nombres'              => $datos['nombres'],
-            'apellidos'            => $datos['apellidos'],
-            'telefono'             => $datos['telefono'],
-            'correo'               => $datos['correo'],
-            'cargo'                => $datos['cargo'],
+            'nombres' => $datos['nombres'],
+            'apellidos' => $datos['apellidos'],
+            'telefono' => $datos['telefono'],
+            'correo' => $datos['correo'],
+            'cargo' => $datos['cargo'],
             'bloqueado_activacion' => $this->request->getPost('bloqueado_activacion') ? 0 : $this->request->getPost('bloqueado_actual')
         ]);
 
