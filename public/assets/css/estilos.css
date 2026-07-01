@@ -1738,3 +1738,81 @@ html {
     justify-content: center;
     margin-bottom: 22px;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.tabla-controles {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.tabla-control-izquierda,
+.tabla-control-derecha {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tabla-control-derecha input,
+.tabla-control-izquierda select {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.tabla-pie {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.paginacion {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.paginacion a,
+.paginacion span {
+    padding: 7px 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #333;
+}
+
+.paginacion a {
+    border: 1px solid #ddd;
+    background: #fff;
+}
+
+.paginacion .pagina-activa {
+    border: 1px solid #7b332f;
+    background: #7b332f;
+    color: white;
+}
