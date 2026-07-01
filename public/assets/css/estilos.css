@@ -1776,11 +1776,16 @@ html {
     gap: 8px;
 }
 
-.tabla-control-derecha input,
-.tabla-control-izquierda select {
+.tabla-control-izquierda select,
+.tabla-control-derecha input {
     padding: 8px 10px;
-    border: 1px solid #ccc;
+    border: 1px solid #cfcfcf;
     border-radius: 6px;
+    outline: none;
+}
+
+.tabla-control-derecha input {
+    min-width: 220px;
 }
 
 .tabla-pie {
@@ -1794,8 +1799,9 @@ html {
 
 .paginacion {
     display: flex;
-    gap: 6px;
     align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
 }
 
 .paginacion a,
@@ -1814,5 +1820,10 @@ html {
 .paginacion .pagina-activa {
     border: 1px solid #7b332f;
     background: #7b332f;
-    color: white;
+    color: #fff;
+}
+
+.btn-buscar {
+    background: #7b332f;
+    color: #fff;
 }
