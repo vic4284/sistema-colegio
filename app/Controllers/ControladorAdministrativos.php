@@ -7,7 +7,7 @@ use App\Models\AdministrativoModelo;
 
 class ControladorAdministrativos extends BaseController
 {
-     protected $administrativoModelo;
+       protected $administrativoModelo;
 
     public function __construct()
     {
@@ -76,6 +76,23 @@ class ControladorAdministrativos extends BaseController
             'correo'    => trim($this->request->getPost('correo') ?? ''),
             'cargo'     => trim($this->request->getPost('cargo') ?? '')
         ];
+    }
+
+    private function redirigirErrorInsertar($mensaje)
+    {
+        return redirect()->to(base_url('/administrativos#modal-insertar-administrativo'))
+            ->with('error_formulario', $mensaje)
+            ->with('modal_formulario', 'insertar')
+            ->withInput();
+    }
+
+    private function redirigirErrorEditar($id, $mensaje)
+    {
+        return redirect()->to(base_url('/administrativos#modal-editar-' . $id))
+            ->with('error_formulario', $mensaje)
+            ->with('modal_formulario', 'editar')
+            ->with('id_modal_formulario', $id)
+            ->withInput();
     }
 
     public function index()
@@ -179,21 +196,15 @@ class ControladorAdministrativos extends BaseController
         );
 
         if ($error !== null) {
-            return redirect()->to(base_url('/administrativos'))
-                ->with('error', $error)
-                ->withInput();
+            return $this->redirigirErrorInsertar($error);
         }
 
         if ($this->administrativoModelo->existeCorreo($datos['correo'])) {
-            return redirect()->to(base_url('/administrativos'))
-                ->with('error', 'Ya existe un administrativo registrado con ese correo.')
-                ->withInput();
+            return $this->redirigirErrorInsertar('Ya existe un administrativo registrado con ese correo.');
         }
 
         if ($this->administrativoModelo->existeNombreCompleto($datos['nombres'], $datos['apellidos'])) {
-            return redirect()->to(base_url('/administrativos'))
-                ->with('error', 'Ya existe un administrativo registrado con ese nombre completo.')
-                ->withInput();
+            return $this->redirigirErrorInsertar('Ya existe un administrativo registrado con ese nombre completo.');
         }
 
         $this->administrativoModelo->insert([
@@ -241,21 +252,15 @@ class ControladorAdministrativos extends BaseController
         );
 
         if ($error !== null) {
-            return redirect()->to(base_url('/administrativos'))
-                ->with('error', $error)
-                ->withInput();
+            return $this->redirigirErrorEditar($id, $error);
         }
 
         if ($this->administrativoModelo->existeCorreo($datos['correo'], $id)) {
-            return redirect()->to(base_url('/administrativos'))
-                ->with('error', 'Ya existe otro administrativo registrado con ese correo.')
-                ->withInput();
+            return $this->redirigirErrorEditar($id, 'Ya existe otro administrativo registrado con ese correo.');
         }
 
         if ($this->administrativoModelo->existeNombreCompleto($datos['nombres'], $datos['apellidos'], $id)) {
-            return redirect()->to(base_url('/administrativos'))
-                ->with('error', 'Ya existe otro administrativo registrado con ese nombre completo.')
-                ->withInput();
+            return $this->redirigirErrorEditar($id, 'Ya existe otro administrativo registrado con ese nombre completo.');
         }
 
         $this->administrativoModelo->update($id, [

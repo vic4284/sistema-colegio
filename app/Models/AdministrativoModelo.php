@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class AdministrativoModelo extends Model
 {
-    protected $table = 'administrativos';
+     protected $table = 'administrativos';
     protected $primaryKey = 'id_administrativo';
     protected $returnType = 'array';
 

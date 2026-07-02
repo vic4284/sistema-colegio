@@ -1,6 +1,10 @@
 <?= view('layout/header') ?>
 
 <?php
+    $modalFormulario = session()->getFlashdata('modal_formulario');
+    $idModalFormulario = session()->getFlashdata('id_modal_formulario');
+    $errorFormulario = session()->getFlashdata('error_formulario');
+
     function enlaceOrdenAdministrativos($columna, $texto, $orden, $direccion, $buscar, $porPagina)
     {
         $nuevaDireccion = ($orden === $columna && $direccion === 'asc') ? 'desc' : 'asc';
@@ -24,12 +28,21 @@
                     <span class="flecha-orden">' . $flecha . '</span>
                 </a>';
     }
+
+    function valorEditarAdministrativo($campo, $administrativo, $modalFormulario, $idModalFormulario)
+    {
+        if ($modalFormulario === 'editar' && (int)$idModalFormulario === (int)$administrativo['id_administrativo']) {
+            return old($campo, $administrativo[$campo]);
+        }
+
+        return $administrativo[$campo];
+    }
 ?>
 
 <div class="contenedor">
     <h1>👥 Módulo de Administrativos</h1>
 
-    <?php if(session()->getFlashdata('error')): ?>
+    <?php if(session()->getFlashdata('error') && empty($errorFormulario)): ?>
         <div class="mensaje-error">
             <?= session()->getFlashdata('error') ?>
         </div>
@@ -223,6 +236,12 @@
         <a href="#" class="modal-cerrar">&times;</a>
         <h2>➕ Registrar Administrativo</h2>
 
+        <?php if ($modalFormulario === 'insertar' && !empty($errorFormulario)): ?>
+            <div class="mensaje-error-modal">
+                <?= esc($errorFormulario) ?>
+            </div>
+        <?php endif; ?>
+
         <form action="<?= base_url('/administrativos/insertar') ?>" method="post">
             <?= csrf_field() ?>
 
@@ -305,6 +324,16 @@
                 <a href="#" class="modal-cerrar">&times;</a>
                 <h2>✏️ Editar Administrativo</h2>
 
+                <?php if (
+                    $modalFormulario === 'editar' &&
+                    (int)$idModalFormulario === (int)$administrativo['id_administrativo'] &&
+                    !empty($errorFormulario)
+                ): ?>
+                    <div class="mensaje-error-modal">
+                        <?= esc($errorFormulario) ?>
+                    </div>
+                <?php endif; ?>
+
                 <form action="<?= base_url('/administrativos/actualizar/' . $administrativo['id_administrativo']) ?>" method="post">
                     <?= csrf_field() ?>
 
@@ -313,7 +342,7 @@
                         <input type="text"
                                name="nombres"
                                id="nombres_<?= $administrativo['id_administrativo'] ?>"
-                               value="<?= esc($administrativo['nombres']) ?>"
+                               value="<?= esc(valorEditarAdministrativo('nombres', $administrativo, $modalFormulario, $idModalFormulario)) ?>"
                                placeholder="Ingrese los nombres"
                                required
                                minlength="2"
@@ -327,7 +356,7 @@
                         <input type="text"
                                name="apellidos"
                                id="apellidos_<?= $administrativo['id_administrativo'] ?>"
-                               value="<?= esc($administrativo['apellidos']) ?>"
+                               value="<?= esc(valorEditarAdministrativo('apellidos', $administrativo, $modalFormulario, $idModalFormulario)) ?>"
                                placeholder="Ingrese los apellidos"
                                required
                                minlength="2"
@@ -341,7 +370,7 @@
                         <input type="text"
                                name="telefono"
                                id="telefono_<?= $administrativo['id_administrativo'] ?>"
-                               value="<?= esc($administrativo['telefono']) ?>"
+                               value="<?= esc(valorEditarAdministrativo('telefono', $administrativo, $modalFormulario, $idModalFormulario)) ?>"
                                placeholder="Ingrese el teléfono"
                                required
                                minlength="7"
@@ -355,7 +384,7 @@
                         <input type="email"
                                name="correo"
                                id="correo_<?= $administrativo['id_administrativo'] ?>"
-                               value="<?= esc($administrativo['correo']) ?>"
+                               value="<?= esc(valorEditarAdministrativo('correo', $administrativo, $modalFormulario, $idModalFormulario)) ?>"
                                placeholder="Ingrese el correo electrónico"
                                required
                                maxlength="100">
@@ -366,7 +395,7 @@
                         <input type="text"
                                name="cargo"
                                id="cargo_<?= $administrativo['id_administrativo'] ?>"
-                               value="<?= esc($administrativo['cargo']) ?>"
+                               value="<?= esc(valorEditarAdministrativo('cargo', $administrativo, $modalFormulario, $idModalFormulario)) ?>"
                                placeholder="Ingrese el cargo"
                                minlength="3"
                                maxlength="80"

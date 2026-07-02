@@ -1886,3 +1886,13 @@ html {
     gap: 8px;
     flex-wrap: wrap;
 }
+.mensaje-error-modal {
+    background: #f8d7da;
+    color: #842029;
+    border: 1px solid #f5c2c7;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    font-size: 14px;
+    font-weight: 600;
+}
