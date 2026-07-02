@@ -59,7 +59,27 @@ class ControladorAdministrativos extends BaseController
         if (mb_strlen($telefono) > 15) return 'El teléfono no debe superar los 15 dígitos.';
 
         if ($correo === '') return 'El correo es obligatorio.';
-        if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) return 'Debe ingresar un correo válido.';
+        
+        
+        if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+    return 'Debe ingresar un correo válido. Ejemplo: usuario@gmail.com';
+}
+
+$partesCorreo = explode('@', $correo);
+
+if (count($partesCorreo) !== 2 || trim($partesCorreo[0]) === '' || trim($partesCorreo[1]) === '') {
+    return 'El correo debe contener un nombre de usuario y un dominio válido.';
+}
+
+$dominio = $partesCorreo[1];
+
+if (!preg_match('/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/', $dominio)) {
+    return 'El correo debe tener un dominio válido. Ejemplo: usuario@gmail.com';
+}
+
+
+
+
         if (mb_strlen($correo) > 100) return 'El correo no debe superar los 100 caracteres.';
 
         if (mb_strlen($cargo) > 80) return 'El cargo no debe superar los 80 caracteres.';
