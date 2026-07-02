@@ -291,14 +291,13 @@
                 <label for="correo">✉️ Correo</label>
                 <input type="email"
                        name="correo"
-                       pattern="^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$"
-                       title="Ingrese un correo válido. Ejemplo: usuario@gmail.com"
                        id="correo"
                        placeholder="Ingrese el correo electrónico"
                        required
                        maxlength="100"
-                       value="
-                       <?= esc(old('correo')) ?>">
+                       pattern="[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.(com|net|org|edu|bo|com\.bo)"
+                       title="El correo debe terminar en .com, .net, .org, .edu, .bo o .com.bo"
+                       value="<?= esc(old('correo')) ?>">
             </div>
 
             <div class="grupo">
@@ -386,13 +385,13 @@
                         <label for="correo_<?= $administrativo['id_administrativo'] ?>">✉️ Correo</label>
                         <input type="email"
                                name="correo"
-                               pattern="^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$"
-                               title="Ingrese un correo válido. Ejemplo: usuario@gmail.com"
                                id="correo_<?= $administrativo['id_administrativo'] ?>"
                                value="<?= esc(valorEditarAdministrativo('correo', $administrativo, $modalFormulario, $idModalFormulario)) ?>"
                                placeholder="Ingrese el correo electrónico"
                                required
-                               maxlength="100">
+                               maxlength="100"
+                               pattern="[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.(com|net|org|edu|bo|com\.bo)"
+                               title="El correo debe terminar en .com, .net, .org, .edu, .bo o .com.bo">
                     </div>
 
                     <div class="grupo">

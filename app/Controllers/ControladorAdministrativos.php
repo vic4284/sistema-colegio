@@ -7,7 +7,7 @@ use App\Models\AdministrativoModelo;
 
 class ControladorAdministrativos extends BaseController
 {
-       protected $administrativoModelo;
+   protected $administrativoModelo;
 
     public function __construct()
     {
@@ -59,28 +59,13 @@ class ControladorAdministrativos extends BaseController
         if (mb_strlen($telefono) > 15) return 'El teléfono no debe superar los 15 dígitos.';
 
         if ($correo === '') return 'El correo es obligatorio.';
-        
-        
-        if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
-    return 'Debe ingresar un correo válido. Ejemplo: usuario@gmail.com';
-}
-
-$partesCorreo = explode('@', $correo);
-
-if (count($partesCorreo) !== 2 || trim($partesCorreo[0]) === '' || trim($partesCorreo[1]) === '') {
-    return 'El correo debe contener un nombre de usuario y un dominio válido.';
-}
-
-$dominio = $partesCorreo[1];
-
-if (!preg_match('/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/', $dominio)) {
-    return 'El correo debe tener un dominio válido. Ejemplo: usuario@gmail.com';
-}
-
-
-
-
+        if (preg_match('/\s/', $correo)) return 'El correo no debe contener espacios.';
+        if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) return 'Debe ingresar un correo válido.';
         if (mb_strlen($correo) > 100) return 'El correo no debe superar los 100 caracteres.';
+
+        if (!preg_match('/^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.(com|net|org|edu|bo|com\.bo)$/i', $correo)) {
+            return 'El correo debe tener una terminación válida, por ejemplo: .com, .net, .org, .edu, .bo o .com.bo.';
+        }
 
         if (mb_strlen($cargo) > 80) return 'El cargo no debe superar los 80 caracteres.';
 
@@ -93,7 +78,7 @@ if (!preg_match('/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/', $dominio)) {
             'nombres'   => trim($this->request->getPost('nombres') ?? ''),
             'apellidos' => trim($this->request->getPost('apellidos') ?? ''),
             'telefono'  => trim($this->request->getPost('telefono') ?? ''),
-            'correo'    => trim($this->request->getPost('correo') ?? ''),
+            'correo'    => strtolower(trim($this->request->getPost('correo') ?? '')),
             'cargo'     => trim($this->request->getPost('cargo') ?? '')
         ];
     }
