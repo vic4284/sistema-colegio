@@ -103,6 +103,29 @@ class ControladorAdministrativos extends BaseController
             $pagina = 1;
         }
 
+        $columnasPermitidas = [
+            'id_administrativo',
+            'nombres',
+            'apellidos',
+            'telefono',
+            'correo',
+            'cargo',
+            'bloqueado_activacion',
+            'estado',
+            'fecha_creacion'
+        ];
+
+        $orden = $this->request->getGet('orden') ?? 'id_administrativo';
+        $direccion = strtolower($this->request->getGet('direccion') ?? 'desc');
+
+        if (!in_array($orden, $columnasPermitidas)) {
+            $orden = 'id_administrativo';
+        }
+
+        if (!in_array($direccion, ['asc', 'desc'])) {
+            $direccion = 'desc';
+        }
+
         $totalRegistros = $this->administrativoModelo->contarAdministrativos($buscar);
         $totalPaginas = (int)ceil($totalRegistros / $porPagina);
 
@@ -112,7 +135,13 @@ class ControladorAdministrativos extends BaseController
 
         $offset = ($pagina - 1) * $porPagina;
 
-        $administrativos = $this->administrativoModelo->listarAdministrativosPaginado($buscar, $porPagina, $offset);
+        $administrativos = $this->administrativoModelo->listarAdministrativosPaginado(
+            $buscar,
+            $porPagina,
+            $offset,
+            $orden,
+            $direccion
+        );
 
         $desde = $totalRegistros > 0 ? $offset + 1 : 0;
         $hasta = min($offset + $porPagina, $totalRegistros);
@@ -125,7 +154,9 @@ class ControladorAdministrativos extends BaseController
             'totalPaginas' => $totalPaginas,
             'totalRegistros' => $totalRegistros,
             'desde' => $desde,
-            'hasta' => $hasta
+            'hasta' => $hasta,
+            'orden' => $orden,
+            'direccion' => $direccion
         ]);
     }
 
@@ -148,7 +179,9 @@ class ControladorAdministrativos extends BaseController
         );
 
         if ($error !== null) {
-            return redirect()->to(base_url('/administrativos'))->with('error', $error)->withInput();
+            return redirect()->to(base_url('/administrativos'))
+                ->with('error', $error)
+                ->withInput();
         }
 
         if ($this->administrativoModelo->existeCorreo($datos['correo'])) {
@@ -165,12 +198,12 @@ class ControladorAdministrativos extends BaseController
 
         $this->administrativoModelo->insert([
             'id_usuario' => null,
-            'nombres' => $datos['nombres'],
+            'nombres'   => $datos['nombres'],
             'apellidos' => $datos['apellidos'],
-            'telefono' => $datos['telefono'],
-            'correo' => $datos['correo'],
-            'cargo' => $datos['cargo'],
-            'estado' => 1
+            'telefono'  => $datos['telefono'],
+            'correo'    => $datos['correo'],
+            'cargo'     => $datos['cargo'],
+            'estado'    => 1
         ]);
 
         return redirect()->to(base_url('/administrativos'))
@@ -208,7 +241,9 @@ class ControladorAdministrativos extends BaseController
         );
 
         if ($error !== null) {
-            return redirect()->to(base_url('/administrativos'))->with('error', $error)->withInput();
+            return redirect()->to(base_url('/administrativos'))
+                ->with('error', $error)
+                ->withInput();
         }
 
         if ($this->administrativoModelo->existeCorreo($datos['correo'], $id)) {
@@ -224,11 +259,11 @@ class ControladorAdministrativos extends BaseController
         }
 
         $this->administrativoModelo->update($id, [
-            'nombres' => $datos['nombres'],
-            'apellidos' => $datos['apellidos'],
-            'telefono' => $datos['telefono'],
-            'correo' => $datos['correo'],
-            'cargo' => $datos['cargo'],
+            'nombres'              => $datos['nombres'],
+            'apellidos'            => $datos['apellidos'],
+            'telefono'             => $datos['telefono'],
+            'correo'               => $datos['correo'],
+            'cargo'                => $datos['cargo'],
             'bloqueado_activacion' => $this->request->getPost('bloqueado_activacion') ? 0 : $this->request->getPost('bloqueado_actual')
         ]);
 

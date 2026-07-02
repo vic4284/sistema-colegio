@@ -1760,11 +1760,15 @@ html {
 
 
 
+.acciones-superiores {
+    margin-bottom: 20px;
+}
+
 .tabla-controles {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 16px;
+    gap: 18px;
     margin-bottom: 12px;
     flex-wrap: wrap;
 }
@@ -1773,19 +1777,71 @@ html {
 .tabla-control-derecha {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
-.tabla-control-izquierda select,
-.tabla-control-derecha input {
-    padding: 8px 10px;
-    border: 1px solid #cfcfcf;
-    border-radius: 6px;
+.tabla-control-izquierda label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tabla-control-izquierda select {
+    padding: 7px 10px;
+    border: 1px solid #b9b9b9;
+    border-radius: 7px;
+    background: #fff;
     outline: none;
 }
 
-.tabla-control-derecha input {
-    min-width: 220px;
+.buscador-tabla {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f7f3f3;
+    border: 1px solid #e2dada;
+    padding: 8px;
+    border-radius: 12px;
+}
+
+.buscador-tabla input {
+    width: 260px;
+    padding: 9px 12px;
+    border: 1px solid #c9c0c0;
+    border-radius: 8px;
+    outline: none;
+    background: #fff;
+}
+
+.buscador-tabla input:focus {
+    border-color: #7b332f;
+    box-shadow: 0 0 0 2px rgba(123, 51, 47, 0.12);
+}
+
+.btn-buscar {
+    background: #7b332f;
+    color: #fff;
+    border: none;
+}
+
+.btn-aplicar {
+    padding: 7px 12px;
+}
+
+.enlace-orden {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    color: inherit;
+    text-decoration: none;
+    width: 100%;
+}
+
+.flecha-orden {
+    color: #b78383;
+    font-size: 13px;
+    margin-left: 6px;
 }
 
 .tabla-pie {
@@ -1823,7 +1879,10 @@ html {
     color: #fff;
 }
 
-.btn-buscar {
-    background: #7b332f;
-    color: #fff;
+.acciones-tabla {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
 }

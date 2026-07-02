@@ -1,5 +1,31 @@
 <?= view('layout/header') ?>
 
+<?php
+    function enlaceOrdenAdministrativos($columna, $texto, $orden, $direccion, $buscar, $porPagina)
+    {
+        $nuevaDireccion = ($orden === $columna && $direccion === 'asc') ? 'desc' : 'asc';
+
+        $flecha = '↕';
+
+        if ($orden === $columna) {
+            $flecha = $direccion === 'asc' ? '▲' : '▼';
+        }
+
+        $query = http_build_query([
+            'buscar' => $buscar,
+            'por_pagina' => $porPagina,
+            'pagina' => 1,
+            'orden' => $columna,
+            'direccion' => $nuevaDireccion
+        ]);
+
+        return '<a class="enlace-orden" href="' . base_url('/administrativos?' . $query) . '">
+                    <span>' . $texto . '</span>
+                    <span class="flecha-orden">' . $flecha . '</span>
+                </a>';
+    }
+?>
+
 <div class="contenedor">
     <h1>👥 Módulo de Administrativos</h1>
 
@@ -15,7 +41,7 @@
         </div>
     <?php endif; ?>
 
-    <div style="margin-bottom: 20px;">
+    <div class="acciones-superiores">
         <a class="btn btn-guardar" href="#modal-insertar-administrativo">
             ➕ Nuevo Administrativo
         </a>
@@ -24,6 +50,10 @@
     <div class="tabla-responsive">
 
         <form method="get" action="<?= base_url('/administrativos') ?>" class="tabla-controles">
+            <input type="hidden" name="orden" value="<?= esc($orden) ?>">
+            <input type="hidden" name="direccion" value="<?= esc($direccion) ?>">
+            <input type="hidden" name="pagina" value="1">
+
             <div class="tabla-control-izquierda">
                 <label>
                     Mostrar
@@ -35,42 +65,52 @@
                     </select>
                     registros
                 </label>
+
+                <button type="submit" class="btn btn-buscar btn-aplicar">
+                    Aplicar
+                </button>
             </div>
 
             <div class="tabla-control-derecha">
                 <label for="buscar">Buscar:</label>
-                <input type="text"
-                       name="buscar"
-                       id="buscar"
-                       value="<?= esc($buscar) ?>"
-                       maxlength="80"
-                       placeholder="Buscar...">
 
-                <button type="submit" class="btn btn-buscar">🔍 Buscar</button>
+                <div class="buscador-tabla">
+                    <input type="text"
+                           name="buscar"
+                           id="buscar"
+                           value="<?= esc($buscar) ?>"
+                           maxlength="80"
+                           placeholder="Buscar en este módulo...">
 
-                <?php if (!empty($buscar)): ?>
-                    <a href="<?= base_url('/administrativos') ?>" class="btn btn-cancelar">
-                        🧹 Limpiar
-                    </a>
-                <?php endif; ?>
+                    <button type="submit" class="btn btn-buscar">
+                        🔍 Buscar
+                    </button>
+
+                    <?php if (!empty($buscar)): ?>
+                        <a href="<?= base_url('/administrativos') ?>" class="btn btn-cancelar">
+                            🧹 Limpiar
+                        </a>
+                    <?php endif; ?>
+                </div>
             </div>
         </form>
 
         <table>
             <thead>
                 <tr>
-                    <th>🆔 ID</th>
-                    <th>👤 Nombres</th>
-                    <th>👥 Apellidos</th>
-                    <th>📞 Teléfono</th>
-                    <th>✉️ Correo</th>
-                    <th>💼 Cargo</th>
-                    <th>🔐 Usuario vinculado</th>
-                    <th>📌 Estado</th>
-                    <th>📅 Fecha de creación</th>
+                    <th><?= enlaceOrdenAdministrativos('id_administrativo', '🆔 ID', $orden, $direccion, $buscar, $porPagina) ?></th>
+                    <th><?= enlaceOrdenAdministrativos('nombres', '👤 Nombres', $orden, $direccion, $buscar, $porPagina) ?></th>
+                    <th><?= enlaceOrdenAdministrativos('apellidos', '👥 Apellidos', $orden, $direccion, $buscar, $porPagina) ?></th>
+                    <th><?= enlaceOrdenAdministrativos('telefono', '📞 Teléfono', $orden, $direccion, $buscar, $porPagina) ?></th>
+                    <th><?= enlaceOrdenAdministrativos('correo', '✉️ Correo', $orden, $direccion, $buscar, $porPagina) ?></th>
+                    <th><?= enlaceOrdenAdministrativos('cargo', '💼 Cargo', $orden, $direccion, $buscar, $porPagina) ?></th>
+                    <th><?= enlaceOrdenAdministrativos('bloqueado_activacion', '🔐 Usuario vinculado', $orden, $direccion, $buscar, $porPagina) ?></th>
+                    <th><?= enlaceOrdenAdministrativos('estado', '📌 Estado', $orden, $direccion, $buscar, $porPagina) ?></th>
+                    <th><?= enlaceOrdenAdministrativos('fecha_creacion', '📅 Fecha de creación', $orden, $direccion, $buscar, $porPagina) ?></th>
                     <th>⚙️ Acciones</th>
                 </tr>
             </thead>
+
             <tbody>
                 <?php if (!empty($administrativos)): ?>
                     <?php foreach ($administrativos as $administrativo): ?>
@@ -81,6 +121,7 @@
                             <td><?= esc($administrativo['telefono']) ?></td>
                             <td><?= esc($administrativo['correo']) ?></td>
                             <td><?= esc($administrativo['cargo']) ?></td>
+
                             <td>
                                 <?php if ((int)$administrativo['bloqueado_activacion'] === 1): ?>
                                     <span class="estado-inactivo">🔒 Bloqueado</span>
@@ -90,6 +131,7 @@
                                     <span class="estado-pendiente">🟡 Pendiente</span>
                                 <?php endif; ?>
                             </td>
+
                             <td>
                                 <?php if ((int)$administrativo['estado'] === 1): ?>
                                     <span class="estado-activo">✅ Activo</span>
@@ -97,25 +139,29 @@
                                     <span class="estado-inactivo">⛔ Inactivo</span>
                                 <?php endif; ?>
                             </td>
-                            <td><?= esc($administrativo['fecha_creacion']) ?></td>
-                            <td>
-                                <a class="btn btn-editar" href="#modal-editar-<?= $administrativo['id_administrativo'] ?>">
-                                    ✏️ Editar
-                                </a>
 
-                                <?php if ((int)$administrativo['estado'] === 1): ?>
-                                    <a class="btn btn-desactivar"
-                                       href="<?= base_url('/administrativos/desactivar/' . $administrativo['id_administrativo']) ?>"
-                                       onclick="return confirm('¿Desea desactivar este administrativo?')">
-                                        🚫 Desactivar
+                            <td><?= esc($administrativo['fecha_creacion']) ?></td>
+
+                            <td>
+                                <div class="acciones-tabla">
+                                    <a class="btn btn-editar" href="#modal-editar-<?= $administrativo['id_administrativo'] ?>">
+                                        ✏️ Editar
                                     </a>
-                                <?php else: ?>
-                                    <a class="btn btn-activar"
-                                       href="<?= base_url('/administrativos/activar/' . $administrativo['id_administrativo']) ?>"
-                                       onclick="return confirm('¿Desea activar este administrativo?')">
-                                        ✅ Activar
-                                    </a>
-                                <?php endif; ?>
+
+                                    <?php if ((int)$administrativo['estado'] === 1): ?>
+                                        <a class="btn btn-desactivar"
+                                           href="<?= base_url('/administrativos/desactivar/' . $administrativo['id_administrativo']) ?>"
+                                           onclick="return confirm('¿Desea desactivar este administrativo?')">
+                                            🚫 Desactivar
+                                        </a>
+                                    <?php else: ?>
+                                        <a class="btn btn-activar"
+                                           href="<?= base_url('/administrativos/activar/' . $administrativo['id_administrativo']) ?>"
+                                           onclick="return confirm('¿Desea activar este administrativo?')">
+                                            ✅ Activar
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -136,7 +182,9 @@
                 <?php
                     $queryBase = [
                         'buscar' => $buscar,
-                        'por_pagina' => $porPagina
+                        'por_pagina' => $porPagina,
+                        'orden' => $orden,
+                        'direccion' => $direccion
                     ];
                 ?>
 

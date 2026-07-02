@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class AdministrativoModelo extends Model
 {
-      protected $table = 'administrativos';
+    protected $table = 'administrativos';
     protected $primaryKey = 'id_administrativo';
     protected $returnType = 'array';
 
@@ -98,12 +98,12 @@ class AdministrativoModelo extends Model
                        ->getResultArray();
     }
 
-    public function listarAdministrativosPaginado($buscar, $limite, $offset)
+    public function listarAdministrativosPaginado($buscar, $limite, $offset, $orden, $direccion)
     {
         $builder = $this->builder();
         $builder = $this->aplicarBusqueda($builder, $buscar);
 
-        return $builder->orderBy('id_administrativo', 'DESC')
+        return $builder->orderBy($orden, $direccion)
                        ->limit($limite, $offset)
                        ->get()
                        ->getResultArray();
