@@ -1839,9 +1839,11 @@ html {
 }
 
 .flecha-orden {
-    color: #b78383;
-    font-size: 13px;
-    margin-left: 6px;
+    color: #8b3a35;
+    font-size: 18px;
+    font-weight: bold;
+    margin-left: 8px;
+    line-height: 1;
 }
 
 .tabla-pie {
