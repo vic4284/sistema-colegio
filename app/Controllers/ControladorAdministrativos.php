@@ -7,7 +7,7 @@ use App\Models\AdministrativoModelo;
 
 class ControladorAdministrativos extends BaseController
 {
-   protected $administrativoModelo;
+      protected $administrativoModelo;
 
     public function __construct()
     {
@@ -100,6 +100,42 @@ class ControladorAdministrativos extends BaseController
             ->withInput();
     }
 
+    private function obtenerColumnasOrden($orden, $direccion, $buscar, $porPagina)
+    {
+        $columnas = [
+            ['campo' => 'id_administrativo', 'texto' => '🆔 ID'],
+            ['campo' => 'nombres', 'texto' => '👤 Nombres'],
+            ['campo' => 'apellidos', 'texto' => '👥 Apellidos'],
+            ['campo' => 'telefono', 'texto' => '📞 Teléfono'],
+            ['campo' => 'correo', 'texto' => '✉️ Correo'],
+            ['campo' => 'cargo', 'texto' => '💼 Cargo'],
+            ['campo' => 'bloqueado_activacion', 'texto' => '🔐 Usuario vinculado'],
+            ['campo' => 'estado', 'texto' => '📌 Estado'],
+            ['campo' => 'fecha_creacion', 'texto' => '📅 Fecha de creación']
+        ];
+
+        foreach ($columnas as &$columna) {
+            $nuevaDireccion = ($orden === $columna['campo'] && $direccion === 'asc') ? 'desc' : 'asc';
+
+            $flecha = '↕';
+
+            if ($orden === $columna['campo']) {
+                $flecha = $direccion === 'asc' ? '▲' : '▼';
+            }
+
+            $columna['flecha'] = $flecha;
+            $columna['url'] = base_url('/administrativos?' . http_build_query([
+                'buscar' => $buscar,
+                'por_pagina' => $porPagina,
+                'pagina' => 1,
+                'orden' => $columna['campo'],
+                'direccion' => $nuevaDireccion
+            ]));
+        }
+
+        return $columnas;
+    }
+
     public function index()
     {
         $acceso = $this->validarAccesoModulo();
@@ -168,6 +204,8 @@ class ControladorAdministrativos extends BaseController
         $desde = $totalRegistros > 0 ? $offset + 1 : 0;
         $hasta = min($offset + $porPagina, $totalRegistros);
 
+        $columnasOrden = $this->obtenerColumnasOrden($orden, $direccion, $buscar, $porPagina);
+
         return view('administrativos/index', [
             'administrativos' => $administrativos,
             'buscar' => $buscar,
@@ -178,7 +216,8 @@ class ControladorAdministrativos extends BaseController
             'desde' => $desde,
             'hasta' => $hasta,
             'orden' => $orden,
-            'direccion' => $direccion
+            'direccion' => $direccion,
+            'columnasOrden' => $columnasOrden
         ]);
     }
 

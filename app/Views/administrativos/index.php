@@ -4,39 +4,6 @@
     $modalFormulario = session()->getFlashdata('modal_formulario');
     $idModalFormulario = session()->getFlashdata('id_modal_formulario');
     $errorFormulario = session()->getFlashdata('error_formulario');
-
-    function enlaceOrdenAdministrativos($columna, $texto, $orden, $direccion, $buscar, $porPagina)
-    {
-        $nuevaDireccion = ($orden === $columna && $direccion === 'asc') ? 'desc' : 'asc';
-
-        $flecha = '↕';
-
-        if ($orden === $columna) {
-            $flecha = $direccion === 'asc' ? '▲' : '▼';
-        }
-
-        $query = http_build_query([
-            'buscar' => $buscar,
-            'por_pagina' => $porPagina,
-            'pagina' => 1,
-            'orden' => $columna,
-            'direccion' => $nuevaDireccion
-        ]);
-
-        return '<a class="enlace-orden" href="' . base_url('/administrativos?' . $query) . '">
-                    <span>' . $texto . '</span>
-                    <span class="flecha-orden">' . $flecha . '</span>
-                </a>';
-    }
-
-    function valorEditarAdministrativo($campo, $administrativo, $modalFormulario, $idModalFormulario)
-    {
-        if ($modalFormulario === 'editar' && (int)$idModalFormulario === (int)$administrativo['id_administrativo']) {
-            return old($campo, $administrativo[$campo]);
-        }
-
-        return $administrativo[$campo];
-    }
 ?>
 
 <div class="contenedor">
@@ -111,15 +78,14 @@
         <table>
             <thead>
                 <tr>
-                    <th><?= enlaceOrdenAdministrativos('id_administrativo', '🆔 ID', $orden, $direccion, $buscar, $porPagina) ?></th>
-                    <th><?= enlaceOrdenAdministrativos('nombres', '👤 Nombres', $orden, $direccion, $buscar, $porPagina) ?></th>
-                    <th><?= enlaceOrdenAdministrativos('apellidos', '👥 Apellidos', $orden, $direccion, $buscar, $porPagina) ?></th>
-                    <th><?= enlaceOrdenAdministrativos('telefono', '📞 Teléfono', $orden, $direccion, $buscar, $porPagina) ?></th>
-                    <th><?= enlaceOrdenAdministrativos('correo', '✉️ Correo', $orden, $direccion, $buscar, $porPagina) ?></th>
-                    <th><?= enlaceOrdenAdministrativos('cargo', '💼 Cargo', $orden, $direccion, $buscar, $porPagina) ?></th>
-                    <th><?= enlaceOrdenAdministrativos('bloqueado_activacion', '🔐 Usuario vinculado', $orden, $direccion, $buscar, $porPagina) ?></th>
-                    <th><?= enlaceOrdenAdministrativos('estado', '📌 Estado', $orden, $direccion, $buscar, $porPagina) ?></th>
-                    <th><?= enlaceOrdenAdministrativos('fecha_creacion', '📅 Fecha de creación', $orden, $direccion, $buscar, $porPagina) ?></th>
+                    <?php foreach ($columnasOrden as $columna): ?>
+                        <th>
+                            <a class="enlace-orden" href="<?= esc($columna['url']) ?>">
+                                <span><?= esc($columna['texto']) ?></span>
+                                <span class="flecha-orden"><?= esc($columna['flecha']) ?></span>
+                            </a>
+                        </th>
+                    <?php endforeach; ?>
                     <th>⚙️ Acciones</th>
                 </tr>
             </thead>
@@ -247,70 +213,27 @@
 
             <div class="grupo">
                 <label for="nombres">👤 Nombres</label>
-                <input type="text"
-                       name="nombres"
-                       id="nombres"
-                       placeholder="Ingrese los nombres"
-                       required
-                       minlength="2"
-                       maxlength="50"
-                       pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
-                       title="Solo se permiten letras y espacios"
-                       value="<?= esc(old('nombres')) ?>">
+                <input type="text" name="nombres" id="nombres" placeholder="Ingrese los nombres" required minlength="2" maxlength="50" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+" title="Solo se permiten letras y espacios" value="<?= esc(old('nombres')) ?>">
             </div>
 
             <div class="grupo">
                 <label for="apellidos">👥 Apellidos</label>
-                <input type="text"
-                       name="apellidos"
-                       id="apellidos"
-                       placeholder="Ingrese los apellidos"
-                       required
-                       minlength="2"
-                       maxlength="50"
-                       pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
-                       title="Solo se permiten letras y espacios"
-                       value="<?= esc(old('apellidos')) ?>">
+                <input type="text" name="apellidos" id="apellidos" placeholder="Ingrese los apellidos" required minlength="2" maxlength="50" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+" title="Solo se permiten letras y espacios" value="<?= esc(old('apellidos')) ?>">
             </div>
 
             <div class="grupo">
                 <label for="telefono">📞 Teléfono</label>
-                <input type="text"
-                       name="telefono"
-                       id="telefono"
-                       placeholder="Ingrese el teléfono"
-                       required
-                       minlength="7"
-                       maxlength="15"
-                       pattern="[0-9]+"
-                       title="Solo se permiten números"
-                       value="<?= esc(old('telefono')) ?>">
+                <input type="text" name="telefono" id="telefono" placeholder="Ingrese el teléfono" required minlength="7" maxlength="15" pattern="[0-9]+" title="Solo se permiten números" value="<?= esc(old('telefono')) ?>">
             </div>
 
             <div class="grupo">
                 <label for="correo">✉️ Correo</label>
-                <input type="email"
-                       name="correo"
-                       id="correo"
-                       placeholder="Ingrese el correo electrónico"
-                       required
-                       maxlength="100"
-                       pattern="[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.(com|net|org|edu|bo|com\.bo)"
-                       title="El correo debe terminar en .com, .net, .org, .edu, .bo o .com.bo"
-                       value="<?= esc(old('correo')) ?>">
+                <input type="email" name="correo" id="correo" placeholder="Ingrese el correo electrónico" required maxlength="100" pattern="[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.(com|net|org|edu|bo|com\.bo)" title="El correo debe terminar en .com, .net, .org, .edu, .bo o .com.bo" value="<?= esc(old('correo')) ?>">
             </div>
 
             <div class="grupo">
                 <label for="cargo">💼 Cargo</label>
-                <input type="text"
-                       name="cargo"
-                       id="cargo"
-                       placeholder="Ingrese el cargo"
-                       minlength="3"
-                       maxlength="80"
-                       pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
-                       title="Solo se permiten letras y espacios"
-                       value="<?= esc(old('cargo')) ?>">
+                <input type="text" name="cargo" id="cargo" placeholder="Ingrese el cargo" minlength="3" maxlength="80" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+" title="Solo se permiten letras y espacios" value="<?= esc(old('cargo')) ?>">
             </div>
 
             <button type="submit" class="btn btn-guardar">💾 Guardar</button>
@@ -321,16 +244,22 @@
 
 <?php if (!empty($administrativos)): ?>
     <?php foreach ($administrativos as $administrativo): ?>
+        <?php
+            $esModalEditado = $modalFormulario === 'editar' && (int)$idModalFormulario === (int)$administrativo['id_administrativo'];
+
+            $nombresEditar = $esModalEditado ? old('nombres', $administrativo['nombres']) : $administrativo['nombres'];
+            $apellidosEditar = $esModalEditado ? old('apellidos', $administrativo['apellidos']) : $administrativo['apellidos'];
+            $telefonoEditar = $esModalEditado ? old('telefono', $administrativo['telefono']) : $administrativo['telefono'];
+            $correoEditar = $esModalEditado ? old('correo', $administrativo['correo']) : $administrativo['correo'];
+            $cargoEditar = $esModalEditado ? old('cargo', $administrativo['cargo']) : $administrativo['cargo'];
+        ?>
+
         <div id="modal-editar-<?= $administrativo['id_administrativo'] ?>" class="modal">
             <div class="modal-contenido">
                 <a href="#" class="modal-cerrar">&times;</a>
                 <h2>✏️ Editar Administrativo</h2>
 
-                <?php if (
-                    $modalFormulario === 'editar' &&
-                    (int)$idModalFormulario === (int)$administrativo['id_administrativo'] &&
-                    !empty($errorFormulario)
-                ): ?>
+                <?php if ($esModalEditado && !empty($errorFormulario)): ?>
                     <div class="mensaje-error-modal">
                         <?= esc($errorFormulario) ?>
                     </div>
@@ -341,70 +270,27 @@
 
                     <div class="grupo">
                         <label for="nombres_<?= $administrativo['id_administrativo'] ?>">👤 Nombres</label>
-                        <input type="text"
-                               name="nombres"
-                               id="nombres_<?= $administrativo['id_administrativo'] ?>"
-                               value="<?= esc(valorEditarAdministrativo('nombres', $administrativo, $modalFormulario, $idModalFormulario)) ?>"
-                               placeholder="Ingrese los nombres"
-                               required
-                               minlength="2"
-                               maxlength="50"
-                               pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
-                               title="Solo se permiten letras y espacios">
+                        <input type="text" name="nombres" id="nombres_<?= $administrativo['id_administrativo'] ?>" value="<?= esc($nombresEditar) ?>" placeholder="Ingrese los nombres" required minlength="2" maxlength="50" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+" title="Solo se permiten letras y espacios">
                     </div>
 
                     <div class="grupo">
                         <label for="apellidos_<?= $administrativo['id_administrativo'] ?>">👥 Apellidos</label>
-                        <input type="text"
-                               name="apellidos"
-                               id="apellidos_<?= $administrativo['id_administrativo'] ?>"
-                               value="<?= esc(valorEditarAdministrativo('apellidos', $administrativo, $modalFormulario, $idModalFormulario)) ?>"
-                               placeholder="Ingrese los apellidos"
-                               required
-                               minlength="2"
-                               maxlength="50"
-                               pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
-                               title="Solo se permiten letras y espacios">
+                        <input type="text" name="apellidos" id="apellidos_<?= $administrativo['id_administrativo'] ?>" value="<?= esc($apellidosEditar) ?>" placeholder="Ingrese los apellidos" required minlength="2" maxlength="50" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+" title="Solo se permiten letras y espacios">
                     </div>
 
                     <div class="grupo">
                         <label for="telefono_<?= $administrativo['id_administrativo'] ?>">📞 Teléfono</label>
-                        <input type="text"
-                               name="telefono"
-                               id="telefono_<?= $administrativo['id_administrativo'] ?>"
-                               value="<?= esc(valorEditarAdministrativo('telefono', $administrativo, $modalFormulario, $idModalFormulario)) ?>"
-                               placeholder="Ingrese el teléfono"
-                               required
-                               minlength="7"
-                               maxlength="15"
-                               pattern="[0-9]+"
-                               title="Solo se permiten números">
+                        <input type="text" name="telefono" id="telefono_<?= $administrativo['id_administrativo'] ?>" value="<?= esc($telefonoEditar) ?>" placeholder="Ingrese el teléfono" required minlength="7" maxlength="15" pattern="[0-9]+" title="Solo se permiten números">
                     </div>
 
                     <div class="grupo">
                         <label for="correo_<?= $administrativo['id_administrativo'] ?>">✉️ Correo</label>
-                        <input type="email"
-                               name="correo"
-                               id="correo_<?= $administrativo['id_administrativo'] ?>"
-                               value="<?= esc(valorEditarAdministrativo('correo', $administrativo, $modalFormulario, $idModalFormulario)) ?>"
-                               placeholder="Ingrese el correo electrónico"
-                               required
-                               maxlength="100"
-                               pattern="[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.(com|net|org|edu|bo|com\.bo)"
-                               title="El correo debe terminar en .com, .net, .org, .edu, .bo o .com.bo">
+                        <input type="email" name="correo" id="correo_<?= $administrativo['id_administrativo'] ?>" value="<?= esc($correoEditar) ?>" placeholder="Ingrese el correo electrónico" required maxlength="100" pattern="[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.(com|net|org|edu|bo|com\.bo)" title="El correo debe terminar en .com, .net, .org, .edu, .bo o .com.bo">
                     </div>
 
                     <div class="grupo">
                         <label for="cargo_<?= $administrativo['id_administrativo'] ?>">💼 Cargo</label>
-                        <input type="text"
-                               name="cargo"
-                               id="cargo_<?= $administrativo['id_administrativo'] ?>"
-                               value="<?= esc(valorEditarAdministrativo('cargo', $administrativo, $modalFormulario, $idModalFormulario)) ?>"
-                               placeholder="Ingrese el cargo"
-                               minlength="3"
-                               maxlength="80"
-                               pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+"
-                               title="Solo se permiten letras y espacios">
+                        <input type="text" name="cargo" id="cargo_<?= $administrativo['id_administrativo'] ?>" value="<?= esc($cargoEditar) ?>" placeholder="Ingrese el cargo" minlength="3" maxlength="80" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ ]+" title="Solo se permiten letras y espacios">
                     </div>
 
                     <div class="grupo">
@@ -415,20 +301,12 @@
                             <input type="hidden" name="bloqueado_actual" value="1">
 
                             <div class="grupo-desbloqueo">
-                                <input type="checkbox"
-                                       id="desbloquear_<?= $administrativo['id_administrativo'] ?>"
-                                       name="bloqueado_activacion"
-                                       value="1">
-
-                                <label for="desbloquear_<?= $administrativo['id_administrativo'] ?>">
-                                    🔓 Desbloquear activación de cuenta
-                                </label>
+                                <input type="checkbox" id="desbloquear_<?= $administrativo['id_administrativo'] ?>" name="bloqueado_activacion" value="1">
+                                <label for="desbloquear_<?= $administrativo['id_administrativo'] ?>">🔓 Desbloquear activación de cuenta</label>
                             </div>
-
                         <?php elseif (!empty($administrativo['id_usuario'])): ?>
                             <input type="text" value="Cuenta activada en el sistema" disabled>
                             <input type="hidden" name="bloqueado_actual" value="0">
-
                         <?php else: ?>
                             <input type="text" value="Pendiente de activación por el usuario" disabled>
                             <input type="hidden" name="bloqueado_actual" value="0">
